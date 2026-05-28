@@ -1,0 +1,30 @@
+<div class="interactive-wrapper">
+<div class="card shadow-sm border-0 mb-4" style="border-radius:24px;background:#fff;word-break:break-word">
+<div class="bg-white border-bottom-0 py-4 px-4" style="border-radius:24px 24px 0 0">
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+<div class="d-flex align-items-center"><div style="width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;background:#eef2ff"><i class="fas fa-flask-vial text-primary"></i></div>
+<div class="ms-3"><h5 class="mb-0 fw-bold text-dark">Molarity Calculator</h5><p class="text-muted small mb-0">Calculate solution concentration from moles and volume</p></div></div>
+<button class="btn btn-sm rounded-pill px-3" id="btn-reset" style="background:#f1f5f9;font-weight:600"><i class="fas fa-undo me-1"></i>Reset</button>
+</div></div>
+<div class="px-4 pb-4" style="overflow-x:auto">
+<div class="row g-3">
+<div class="col-md-4"><label class="form-label small fw-bold text-secondary text-uppercase mb-2">Moles of Solute</label><input type="number" id="in-n" class="form-control form-control-lg" value="1" step="0.01"></div>
+<div class="col-md-4"><label class="form-label small fw-bold text-secondary text-uppercase mb-2">Volume (L)</label><input type="number" id="in-v" class="form-control form-control-lg" value="1" step="0.01"></div>
+<div class="col-md-4"><label class="form-label small fw-bold text-secondary text-uppercase mb-2">Temperature</label><div class="input-group"><input type="number" id="in-t" class="form-control form-control-lg" value="25"><select id="in-tu" class="form-select" style="max-width:70px"><option value="C">°C</option><option value="K">K</option></select></div></div></div>
+<div class="mt-4 text-center"><button class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm" id="btn-calc" style="min-width:260px;max-width:100%"><i class="fas fa-calculator me-2"></i>Calculate</button></div>
+<div class="mt-3 p-3 rounded-4 border" style="background:#f8fafc"><p class="mb-0 small text-muted"><i class="fas fa-info-circle text-primary me-2"></i><b>Formula:</b> M = n / V where M=molarity(mol/L), n=moles, V=volume(L)</p></div>
+</div></div>
+<div id="res" class="card shadow-sm border-0 d-none mb-4" style="border-radius:24px;background:#fff;word-break:break-word">
+<div class="bg-white border-bottom-0 py-4 px-4" style="border-radius:24px 24px 0 0">
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+<div class="d-flex align-items-center"><div style="width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;background:#ecfdf5"><i class="fas fa-check-circle text-success"></i></div>
+<div class="ms-3"><h5 class="mb-0 fw-bold text-dark">Result</h5><p class="text-muted small mb-0">Detailed breakdown</p></div></div>
+<button class="btn btn-success btn-sm rounded-pill px-4 shadow-sm" id="btn-copy" style="min-width:120px"><i class="fas fa-copy me-1"></i>Copy</button>
+</div></div>
+<div class="px-4 pb-4" style="overflow-x:auto">
+<div class="p-4 rounded-4 bg-light border text-center mb-3"><div class="small fw-bold text-uppercase text-muted mb-1">RESULT</div><div class="display-4 fw-bold text-dark" id="out-main">—</div><div class="small text-muted fw-bold" id="out-unit"></div></div>
+<div id="out-detail" class="row g-3 mb-3"></div>
+<div class="p-4 rounded-4 bg-light border shadow-sm"><h6 class="fw-bold mb-3 small text-uppercase text-muted" style="letter-spacing:1px"><i class="fas fa-lightbulb text-warning me-2"></i>Insights</h6><div id="out-ins" class="small text-secondary"></div></div>
+</div></div></div>
+<style>.form-control-lg,.form-select-lg{border:1.5px solid #e2e8f0;border-radius:12px;font-size:1.05rem;padding:.75rem 1rem}.form-control:focus,.form-select:focus{border-color:#4f46e5;box-shadow:0 0 0 4px rgba(79,70,229,.1)}</style>
+<script>document.addEventListener("DOMContentLoaded",function(){document.getElementById("btn-calc").addEventListener("click",function(){var n=parseFloat(document.getElementById("in-n").value)||0,v=parseFloat(document.getElementById("in-v").value)||0;if(v===0)return;var m=n/v;document.getElementById("out-main").textContent=m.toFixed(4);document.getElementById("out-unit").textContent="mol/L (M)";document.getElementById("out-detail").innerHTML='<div class="col-4"><div class="p-3 rounded-4 bg-light border text-center"><div class="small fw-bold text-uppercase text-muted mb-1">Moles</div><div class="h5 fw-bold mb-0 text-primary">'+n.toFixed(4)+'</div></div></div><div class="col-4"><div class="p-3 rounded-4 bg-light border text-center"><div class="small fw-bold text-uppercase text-muted mb-1">Volume</div><div class="h5 fw-bold mb-0 text-info">'+v.toFixed(4)+' L</div></div></div><div class="col-4"><div class="p-3 rounded-4 bg-light border text-center"><div class="small fw-bold text-uppercase text-muted mb-1">mM</div><div class="h5 fw-bold mb-0 text-success">'+(m*1000).toFixed(2)+'</div></div></div>';var ins=["Molarity = "+n+" / "+v+" = <b>"+m.toFixed(4)+" M</b>","Equivalent to <b>"+(m*1000).toFixed(2)+" mM</b> (millimolar)"];document.getElementById("out-ins").innerHTML='<ul class="list-unstyled mb-0">'+ins.map(function(i){return'<li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>'+i+'</li>';}).join("")+"</ul>";document.getElementById("res").classList.remove("d-none");document.getElementById("res").scrollIntoView({behavior:"smooth"});});document.getElementById("btn-reset").addEventListener("click",function(){document.getElementById("in-n").value=1;document.getElementById("in-v").value=1;document.getElementById("res").classList.add("d-none");});document.getElementById("btn-copy").addEventListener("click",function(){navigator.clipboard.writeText("Molarity: "+document.getElementById("out-main").textContent+" mol/L — ToolsHub");var b=this,o=b.innerHTML;b.innerHTML="<i class=\"fas fa-check me-1\"></i>Copied!";setTimeout(function(){b.innerHTML=o;},2000);});});</script><?php /**PATH D:\Xamp\htdocs\ToolsHub\resources\views\tools\interactive\molarity-calculator.blade.php ENDPATH**/ ?>

@@ -192,6 +192,9 @@
                     </div>
                 </section>
 
+                {{-- ════════════ CROSS-CATEGORY LINKS ════════════ --}}
+                @include('partials.cross-links')
+
             </div>
         </div>
     </div>

@@ -254,13 +254,30 @@
 
                     <div class="row g-3">
                         @php
-                            // Inject slug into the array to preserve it after shuffle() which loses keys
-                            $toolsWithSlugs = collect($tools)->map(function($item, $key) {
-                                $item['slug'] = $key;
-                                return $item;
-                            });
-                            $related = $toolsWithSlugs->where('category', $tool['category'] ?? 'General')->except($slug)->shuffle()->take(12);
-                        @endphp
+                        // Inject slug into the array to preserve it after shuffle() which loses keys
+                        $toolsWithSlugs = collect($tools)->map(function($item, $key) {
+                            $item['slug'] = $key;
+                            return $item;
+                        });
+                        // Step 1: Same-category tools
+                        $related = $toolsWithSlugs->where('category', $tool['category'] ?? 'General')->except($slug)->shuffle()->take(12);
+
+                        // Step 2: Keyword fallback if same-category < 12
+                        if ($related->count() < 12) {
+                            $keywords = array_filter(explode('-', $slug), fn($w) => !in_array($w, ['to','from','and','of','a','the','in','for']));
+                            $keywordMatch = $toolsWithSlugs
+                                ->whereNotIn('slug', $related->pluck('slug')->push($slug)->toArray())
+                                ->filter(function ($t) use ($keywords) {
+                                    foreach ($keywords as $kw) {
+                                        if (strlen($kw) >= 3 && str_contains($t['slug'], $kw)) return true;
+                                    }
+                                    return false;
+                                })
+                                ->shuffle()
+                                ->take(12 - $related->count());
+                            $related = $related->merge($keywordMatch);
+                        }
+                    @endphp
                         @foreach($related as $relTool)
                             <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                                 <a href="{{ url('/' . $relTool['slug']) }}" class="tool-card h-100">
@@ -278,6 +295,9 @@
                     </div>
                 </section>
                 @endif
+
+                {{-- ════════════ CROSS-CATEGORY LINKS ════════════ --}}
+                @include('partials.cross-links')
 
             </div>
         </div>

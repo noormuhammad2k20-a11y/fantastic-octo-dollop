@@ -16,11 +16,6 @@ class Batch3Processor extends BaseProcessor
         $path = is_array($inputPath) ? ($inputPath[0] ?? null) : $inputPath;
         Storage::disk('public')->makeDirectory('uploads/processed');
 
-        // Cluster 2: Font / CAD Cluster
-        if ($slug === 'ttf-to-svg' || $slug === 'dwg-to-svg') {
-             return $this->handleSpecificLogic($path, $slug, $options);
-        }
-
         // Cluster 4: Financial Converters
         if (in_array($slug, ['csv-to-ofx', 'csv-to-qif', 'vcf-to-csv', 'csv-to-vcard', 'ofx-to-qfx', 'ofx-to-excel', 'ofx-to-qbo', 'excel-to-ofx'])) {
             return $this->handleFileConversion($path, $slug, $options);

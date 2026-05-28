@@ -3,22 +3,30 @@
 @endphp
 
 <nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb mb-0 py-2 px-3 bg-light rounded-pill d-flex flex-wrap border">
-        <li class="breadcrumb-item">
-            <a href="{{ route('home') }}" class="text-decoration-none text-secondary">
-                <i class="fas fa-home me-1"></i> Home
+    <ol class="breadcrumb mb-0 py-2 px-3 bg-light rounded-pill d-flex flex-wrap border"
+        itemscope itemtype="https://schema.org/BreadcrumbList">
+        <li class="breadcrumb-item"
+            itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="{{ route('home') }}" class="text-decoration-none text-secondary" itemprop="item">
+                <i class="fas fa-home me-1"></i>
+                <span itemprop="name">Home</span>
             </a>
+            <meta itemprop="position" content="1" />
         </li>
-        @foreach($items as $item)
+        @foreach($items as $i => $item)
             @if($loop->last)
-                <li class="breadcrumb-item active text-primary fw-bold" aria-current="page">
-                    {{ $item['name'] }}
+                <li class="breadcrumb-item active text-primary fw-bold" aria-current="page"
+                    itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <span itemprop="name">{{ $item['name'] }}</span>
+                    <meta itemprop="position" content="{{ $i + 2 }}" />
                 </li>
             @else
-                <li class="breadcrumb-item">
-                    <a href="{{ $item['url'] }}" class="text-decoration-none text-secondary">
-                        {{ $item['name'] }}
+                <li class="breadcrumb-item"
+                    itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="{{ $item['url'] }}" class="text-decoration-none text-secondary" itemprop="item">
+                        <span itemprop="name">{{ $item['name'] }}</span>
                     </a>
+                    <meta itemprop="position" content="{{ $i + 2 }}" />
                 </li>
             @endif
         @endforeach

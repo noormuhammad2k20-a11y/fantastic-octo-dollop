@@ -134,6 +134,6 @@ class HomeController extends Controller
 
         $totalToolsCount = count($tools); // For global header/footer usage
 
-        return view('category', compact('categoryName', 'category', 'categoryTools', 'slug', 'totalToolsCount'));
+        return view('category', compact('categoryName', 'category', 'categoryTools', 'slug', 'totalToolsCount', 'categories'));
     }
 }

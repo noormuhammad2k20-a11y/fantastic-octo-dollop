@@ -3,24 +3,30 @@
 ?>
 
 <nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb mb-0 py-2 px-3 bg-light rounded-pill d-flex flex-wrap border">
-        <li class="breadcrumb-item">
-            <a href="<?php echo e(route('home')); ?>" class="text-decoration-none text-secondary">
-                <i class="fas fa-home me-1"></i> Home
+    <ol class="breadcrumb mb-0 py-2 px-3 bg-light rounded-pill d-flex flex-wrap border"
+        itemscope itemtype="https://schema.org/BreadcrumbList">
+        <li class="breadcrumb-item"
+            itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="<?php echo e(route('home')); ?>" class="text-decoration-none text-secondary" itemprop="item">
+                <i class="fas fa-home me-1"></i>
+                <span itemprop="name">Home</span>
             </a>
+            <meta itemprop="position" content="1" />
         </li>
-        <?php $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <?php if($loop->last): ?>
-                <li class="breadcrumb-item active text-primary fw-bold" aria-current="page">
-                    <?php echo e($item['name']); ?>
-
+                <li class="breadcrumb-item active text-primary fw-bold" aria-current="page"
+                    itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <span itemprop="name"><?php echo e($item['name']); ?></span>
+                    <meta itemprop="position" content="<?php echo e($i + 2); ?>" />
                 </li>
             <?php else: ?>
-                <li class="breadcrumb-item">
-                    <a href="<?php echo e($item['url']); ?>" class="text-decoration-none text-secondary">
-                        <?php echo e($item['name']); ?>
-
+                <li class="breadcrumb-item"
+                    itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a href="<?php echo e($item['url']); ?>" class="text-decoration-none text-secondary" itemprop="item">
+                        <span itemprop="name"><?php echo e($item['name']); ?></span>
                     </a>
+                    <meta itemprop="position" content="<?php echo e($i + 2); ?>" />
                 </li>
             <?php endif; ?>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

@@ -19,5 +19,6 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.url')) {
             \Illuminate\Support\Facades\URL::forceRootUrl(config('app.url'));
         }
+        \Illuminate\Support\Facades\View::composer('layouts.app', \App\View\Composers\FooterComposer::class);
     }
 }

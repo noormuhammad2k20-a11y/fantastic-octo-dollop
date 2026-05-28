@@ -182,37 +182,16 @@
                     <p>Free online tools to convert, compress, and edit your files. No signup required. 100% secure and
                         privacy-first.</p>
                 </div>
+                <?php $__currentLoopData = $footerClusters ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $clusterName => $clusterTools): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div>
-                    <h6>Text & Content</h6>
+                    <h6><?php echo e($clusterName); ?></h6>
                     <ul class="footer-links">
-                        <li><a href="<?php echo e(url('/text')); ?>">Text Tools</a></li>
-                        <li><a href="<?php echo e(url('/word-counter')); ?>">Word Counter</a></li>
-                        <li><a href="<?php echo e(url('/case-converter')); ?>">Case Converter</a></li>
-                        <li><a href="<?php echo e(url('/lorem-ipsum')); ?>">Lorem Ipsum</a></li>
+                        <?php $__currentLoopData = $clusterTools; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ct): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <li><a href="<?php echo e(url('/' . ($ct['slug'] ?? ''))); ?>"><?php echo e($ct['h1'] ?? $ct['name'] ?? 'Tool'); ?></a></li>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </ul>
                 </div>
-                <div>
-                    <h6>Calculators</h6>
-                    <ul class="footer-links">
-                        <li><a href="<?php echo e(url('/medical')); ?>">Clinical & Medical</a></li>
-                        <li><a href="<?php echo e(url('/finance')); ?>">Finance & Tax</a></li>
-                        <li><a href="<?php echo e(url('/health')); ?>">Health & Fitness</a></li>
-                        <li><a href="<?php echo e(url('/calculators')); ?>">Math & Education</a></li>
-                        <li><a href="<?php echo e(url('/algebra')); ?>">Algebra & Discrete Math</a></li>
-                        <li><a href="<?php echo e(url('/gaming')); ?>">Gaming Tools</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h6>Utilities & AI</h6>
-                    <ul class="footer-links">
-                        <li><a href="<?php echo e(url('/utility')); ?>">All Utilities</a></li>
-                        <li><a href="<?php echo e(url('/barcode-generator')); ?>">Barcode Generator</a></li>
-                        <li><a href="<?php echo e(url('/csv-to-ofx')); ?>">CSV to OFX</a></li>
-                        <li><a href="<?php echo e(url('/url-shortener')); ?>">URL Shortener</a></li>
-                        <li><a href="<?php echo e(url('/ai-content')); ?>">AI Content Tools</a></li>
-                        <li><a href="<?php echo e(url('/name-generator')); ?>">Name Generators</a></li>
-                    </ul>
-                </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 <div>
                     <h6>Company</h6>
                     <ul class="footer-links">

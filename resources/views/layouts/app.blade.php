@@ -182,37 +182,16 @@
                     <p>Free online tools to convert, compress, and edit your files. No signup required. 100% secure and
                         privacy-first.</p>
                 </div>
+                @foreach($footerClusters ?? [] as $clusterName => $clusterTools)
                 <div>
-                    <h6>Text & Content</h6>
+                    <h6>{{ $clusterName }}</h6>
                     <ul class="footer-links">
-                        <li><a href="{{ url('/text') }}">Text Tools</a></li>
-                        <li><a href="{{ url('/word-counter') }}">Word Counter</a></li>
-                        <li><a href="{{ url('/case-converter') }}">Case Converter</a></li>
-                        <li><a href="{{ url('/lorem-ipsum') }}">Lorem Ipsum</a></li>
+                        @foreach($clusterTools as $ct)
+                            <li><a href="{{ url('/' . ($ct['slug'] ?? '')) }}">{{ $ct['h1'] ?? $ct['name'] ?? 'Tool' }}</a></li>
+                        @endforeach
                     </ul>
                 </div>
-                <div>
-                    <h6>Calculators</h6>
-                    <ul class="footer-links">
-                        <li><a href="{{ url('/medical') }}">Clinical & Medical</a></li>
-                        <li><a href="{{ url('/finance') }}">Finance & Tax</a></li>
-                        <li><a href="{{ url('/health') }}">Health & Fitness</a></li>
-                        <li><a href="{{ url('/calculators') }}">Math & Education</a></li>
-                        <li><a href="{{ url('/algebra') }}">Algebra & Discrete Math</a></li>
-                        <li><a href="{{ url('/gaming') }}">Gaming Tools</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h6>Utilities & AI</h6>
-                    <ul class="footer-links">
-                        <li><a href="{{ url('/utility') }}">All Utilities</a></li>
-                        <li><a href="{{ url('/barcode-generator') }}">Barcode Generator</a></li>
-                        <li><a href="{{ url('/csv-to-ofx') }}">CSV to OFX</a></li>
-                        <li><a href="{{ url('/url-shortener') }}">URL Shortener</a></li>
-                        <li><a href="{{ url('/ai-content') }}">AI Content Tools</a></li>
-                        <li><a href="{{ url('/name-generator') }}">Name Generators</a></li>
-                    </ul>
-                </div>
+                @endforeach
                 <div>
                     <h6>Company</h6>
                     <ul class="footer-links">

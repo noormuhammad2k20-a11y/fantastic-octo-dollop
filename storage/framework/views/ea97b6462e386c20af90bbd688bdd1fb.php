@@ -43,29 +43,31 @@
 <?php $__env->startSection('content'); ?>
 
     
-    <section class="hero-section" style="padding: 60px 0 40px;">
+    <section class="hero-section bg-white" style="padding: 40px 0 25px; border-bottom: 1px solid rgba(0,0,0,0.04);">
         <div class="container text-center">
             <div class="d-flex justify-content-center align-items-center flex-column">
 
                 
-                <div class="mb-3 w-100">
+                <div class="mb-3 w-100 d-flex justify-content-center" style="opacity: 0.8;">
                     <?php echo $__env->make('partials.breadcrumbs', ['items' => [['name' => $categoryName . ' Tools']]], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                 </div>
 
-                <h1 class="mb-3"><?php echo e($categoryName); ?> Tools</h1>
-                <p class="lead" style="max-width: 600px; margin: 0 auto;">
-                    <?php echo e($category['description'] ?? 'Explore our complete collection of high-performance tools in this category.'); ?>
+                <h1 class="mb-3 fw-bold" style="letter-spacing: -0.5px; color: #111827;"><?php echo e($categoryName); ?> Tools</h1>
+                <p class="mb-4" style="max-width: 650px; margin: 0 auto; font-size: 1.1rem; color: #4b5563; line-height: 1.6;">
+                    <?php echo e($category['description'] ?? 'Explore our complete collection of high-performance tools in this category. Built for precision and speed.'); ?>
 
                 </p>
-                <div class="mt-4">
-                    <span class="badge bg-white text-primary border px-3 py-2 fs-6 shadow-sm rounded-pill"><?php echo e(count($categoryTools)); ?> Tools Available</span>
+                <div class="mb-1">
+                    <span class="badge rounded-pill px-3 py-2 fw-medium" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 0.95rem;">
+                        <i class="fas fa-layer-group me-1 opacity-75"></i> <?php echo e(count($categoryTools)); ?> Tools Available
+                    </span>
                 </div>
             </div>
         </div>
     </section>
 
     
-    <section class="category-section bg-light py-5">
+    <section class="category-section" style="background-color: #f8fafc; padding-top: 35px; padding-bottom: 60px;">
         <div class="container">
             <div class="row">
                 
@@ -96,7 +98,7 @@
                             </div>
                         <?php else: ?>
                             <?php $__currentLoopData = $categoryTools; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $tool): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <div class="col-12 col-sm-6 col-md-4 col-lg-3 cat-tool-item" data-name="<?php echo e(strtolower($tool['h1'] ?? $tool['name'] ?? '')); ?> <?php echo e(strtolower($tool['description'] ?? '')); ?>">
+                                <div class="col-12 col-sm-6 col-md-4 col-lg-2 cat-tool-item" data-name="<?php echo e(strtolower($tool['h1'] ?? $tool['name'] ?? '')); ?> <?php echo e(strtolower($tool['description'] ?? '')); ?>">
                                     <a href="<?php echo e(url('/' . $key)); ?>" class="tool-card">
                                         <div class="tool-icon">
                                             <i class="<?php echo e($tool['icon'] ?? 'fas fa-tools'); ?>"></i>
@@ -150,6 +152,32 @@
             </div>
         </div>
     </section>
+
+    
+    <?php if(isset($categories) && count($categories) > 1): ?>
+    <section class="py-4">
+        <div class="container">
+            <h2 class="mb-3" style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">Related Categories</h2>
+            <div class="category-hub-grid" style="margin-top: 1rem !important;">
+                <?php
+                    $catsWithSlugs = collect($categories)->map(function($cat, $key) {
+                        $cat['slug'] = $key;
+                        return $cat;
+                    });
+                    $siblingCats = $catsWithSlugs->except($slug)->shuffle()->take(4);
+                ?>
+                <?php $__currentLoopData = $siblingCats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <a href="<?php echo e(route('category.show', ['slug' => $c['slug']])); ?>" class="cat-hub-card">
+                    <div class="cat-hub-icon <?php echo e($c['color'] ?? 'convert'); ?>">
+                        <i class="<?php echo e($c['icon'] ?? 'fas fa-folder'); ?>"></i>
+                    </div>
+                    <span class="cat-hub-name"><?php echo e($c['name']); ?></span>
+                </a>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
 
     
     <?php echo $__env->make('partials.disclaimers', ['category' => $slug], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>

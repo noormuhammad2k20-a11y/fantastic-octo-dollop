@@ -45,28 +45,30 @@
 @section('content')
 
     {{-- ════════════ CATEGORY HERO ════════════ --}}
-    <section class="hero-section" style="padding: 60px 0 40px;">
+    <section class="hero-section bg-white" style="padding: 40px 0 25px; border-bottom: 1px solid rgba(0,0,0,0.04);">
         <div class="container text-center">
             <div class="d-flex justify-content-center align-items-center flex-column">
 
                 {{-- Breadcrumbs --}}
-                <div class="mb-3 w-100">
+                <div class="mb-3 w-100 d-flex justify-content-center" style="opacity: 0.8;">
                     @include('partials.breadcrumbs', ['items' => [['name' => $categoryName . ' Tools']]])
                 </div>
 
-                <h1 class="mb-3">{{ $categoryName }} Tools</h1>
-                <p class="lead" style="max-width: 600px; margin: 0 auto;">
-                    {{ $category['description'] ?? 'Explore our complete collection of high-performance tools in this category.' }}
+                <h1 class="mb-3 fw-bold" style="letter-spacing: -0.5px; color: #111827;">{{ $categoryName }} Tools</h1>
+                <p class="mb-4" style="max-width: 650px; margin: 0 auto; font-size: 1.1rem; color: #4b5563; line-height: 1.6;">
+                    {{ $category['description'] ?? 'Explore our complete collection of high-performance tools in this category. Built for precision and speed.' }}
                 </p>
-                <div class="mt-4">
-                    <span class="badge bg-white text-primary border px-3 py-2 fs-6 shadow-sm rounded-pill">{{ count($categoryTools) }} Tools Available</span>
+                <div class="mb-1">
+                    <span class="badge rounded-pill px-3 py-2 fw-medium" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 0.95rem;">
+                        <i class="fas fa-layer-group me-1 opacity-75"></i> {{ count($categoryTools) }} Tools Available
+                    </span>
                 </div>
             </div>
         </div>
     </section>
 
     {{-- ════════════ CATEGORY WORKSPACE ════════════ --}}
-    <section class="category-section bg-light py-5">
+    <section class="category-section" style="background-color: #f8fafc; padding-top: 35px; padding-bottom: 60px;">
         <div class="container">
             <div class="row">
                 
@@ -97,7 +99,7 @@
                             </div>
                         @else
                             @foreach($categoryTools as $key => $tool)
-                                <div class="col-12 col-sm-6 col-md-4 col-lg-3 cat-tool-item" data-name="{{ strtolower($tool['h1'] ?? $tool['name'] ?? '') }} {{ strtolower($tool['description'] ?? '') }}">
+                                <div class="col-12 col-sm-6 col-md-4 col-lg-2 cat-tool-item" data-name="{{ strtolower($tool['h1'] ?? $tool['name'] ?? '') }} {{ strtolower($tool['description'] ?? '') }}">
                                     <a href="{{ url('/' . $key) }}" class="tool-card">
                                         <div class="tool-icon">
                                             <i class="{{ $tool['icon'] ?? 'fas fa-tools' }}"></i>
@@ -151,6 +153,32 @@
             </div>
         </div>
     </section>
+
+    {{-- ════════════ RELATED CATEGORIES ════════════ --}}
+    @if(isset($categories) && count($categories) > 1)
+    <section class="py-4">
+        <div class="container">
+            <h2 class="mb-3" style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">Related Categories</h2>
+            <div class="category-hub-grid" style="margin-top: 1rem !important;">
+                @php
+                    $catsWithSlugs = collect($categories)->map(function($cat, $key) {
+                        $cat['slug'] = $key;
+                        return $cat;
+                    });
+                    $siblingCats = $catsWithSlugs->except($slug)->shuffle()->take(4);
+                @endphp
+                @foreach($siblingCats as $c)
+                <a href="{{ route('category.show', ['slug' => $c['slug']]) }}" class="cat-hub-card">
+                    <div class="cat-hub-icon {{ $c['color'] ?? 'convert' }}">
+                        <i class="{{ $c['icon'] ?? 'fas fa-folder' }}"></i>
+                    </div>
+                    <span class="cat-hub-name">{{ $c['name'] }}</span>
+                </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
 
     {{-- ════════════ YMYL DISCLAIMERS ════════════ --}}
     @include('partials.disclaimers', ['category' => $slug])
