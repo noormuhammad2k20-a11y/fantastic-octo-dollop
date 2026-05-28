@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="jadeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a9d70;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#088a62;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sunburst (Vibrant white radiating lines) -->
+  <g stroke="white" stroke-opacity="0.9" stroke-width="1.2">
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(0 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(7.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(15 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(22.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(30 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(37.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(45 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(52.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(60 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(67.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(75 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(82.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(90 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(97.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(105 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(112.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(120 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(127.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(135 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(142.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(150 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(157.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(165 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(172.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(180 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(187.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(195 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(202.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(210 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(217.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(225 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(232.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(240 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(247.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(255 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(262.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(270 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(277.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(285 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(292.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(300 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(307.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(315 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(322.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(330 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(337.5 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="2" transform="rotate(345 50 50)" />
+    <line x1="50" y1="50" x2="50" y2="8" transform="rotate(352.5 50 50)" />
+  </g>
+
+  <!-- Teal scalloped badge -->
+  <path fill="url(#jadeGradient)" d="M50 5C55 5 57 10 62 11C67 12 71 9 76 12C81 15 81 21 85 25C89 29 95 29 98 34C101 39 98 45 98 50C98 55 101 61 98 66C95 71 89 71 85 75C81 79 81 85 76 88C71 91 67 88 62 89C57 90 55 95 50 95C45 95 43 90 38 89C33 88 29 91 24 88C19 85 19 79 15 75C11 71 5 71 2 66C-1 61 2 55 2 50C2 45 -1 39 2 34C5 29 11 29 15 25C19 21 19 15 24 12C29 9 33 12 38 11C43 10 45 5 50 5Z" />
+
+  <!-- Wavy inner border -->
+  <path fill="none" stroke="white" stroke-width="1.0" opacity="0.8" d="M50 12C54 12 56 16 60 17C64 18 67 16 71 18C75 20 75 25 78 28C81 31 86 31 88 35C90 39 88 44 88 48C88 52 90 57 88 61C86 65 81 65 78 68C75 71 75 76 71 78C67 80 64 78 60 79C56 80 54 84 50 84C46 84 44 80 40 79C36 78 33 80 29 78C25 76 25 71 22 68C19 65 14 65 12 61C10 57 12 52 12 48C12 44 10 39 12 35C14 31 19 31 22 28C25 25 25 20 29 18C33 16 36 18 40 17C44 16 46 12 50 12Z" />
+
+  <!-- Central 'T' -->
+  <text x="50" y="67" font-family="Verdana, Geneva, sans-serif" font-weight="900" font-size="38" fill="white" text-anchor="middle">T</text>
+</svg>

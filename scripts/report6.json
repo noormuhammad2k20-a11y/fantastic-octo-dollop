@@ -1,0 +1,98 @@
+{
+    "duplicates": [
+        {
+            "requested": "Injury Claim Calculator",
+            "matched_with": "QUEUE: Accident Settlement Calculator"
+        },
+        {
+            "requested": "Compensation Estimator Tool",
+            "matched_with": "QUEUE: Accident Settlement Calculator"
+        },
+        {
+            "requested": "Lawsuit Value Estimator",
+            "matched_with": "QUEUE: Claim Value Calculator"
+        },
+        {
+            "requested": "Injury Compensation Tool",
+            "matched_with": "QUEUE: Accident Settlement Calculator"
+        },
+        {
+            "requested": "Auto Loan Payment",
+            "matched_with": "LIVE: loan payment breakdown calculator"
+        },
+        {
+            "requested": "Vehicle Cost Analyzer",
+            "matched_with": "QUEUE: Car Ownership Cost"
+        },
+        {
+            "requested": "Driving Cost Calculator",
+            "matched_with": "QUEUE: Car Ownership Cost"
+        },
+        {
+            "requested": "Health Expense Planner",
+            "matched_with": "QUEUE: Medical Expense Calculator"
+        },
+        {
+            "requested": "Ad Revenue Calculator",
+            "matched_with": "LIVE: dividend income calculator"
+        },
+        {
+            "requested": "Monetization Analyzer Tool",
+            "matched_with": "LIVE: dividend income calculator"
+        },
+        {
+            "requested": "Ad Performance Calculator",
+            "matched_with": "QUEUE: KPI Performance Tracker"
+        },
+        {
+            "requested": "Online Income Calculator",
+            "matched_with": "QUEUE: Traffic Revenue Tool"
+        },
+        {
+            "requested": "Digital Revenue Tool",
+            "matched_with": "QUEUE: Traffic Revenue Tool"
+        },
+        {
+            "requested": "Website Profit Calculator",
+            "matched_with": "QUEUE: Traffic Revenue Tool"
+        }
+    ],
+    "unique": [
+        "Accident Settlement Calculator",
+        "Legal Case Calculator",
+        "Divorce Settlement Calculator",
+        "Legal Risk Calculator",
+        "Claim Value Calculator",
+        "Attorney Fee Calculator",
+        "Car Loan Affordability",
+        "Vehicle Depreciation Calculator",
+        "Car Ownership Cost",
+        "Fuel Efficiency Calculator",
+        "Car Insurance Estimator",
+        "Lease Buy Calculator",
+        "Car Expense Calculator",
+        "Insurance Coverage Calculator",
+        "Health Cost Estimator",
+        "Medical Expense Calculator",
+        "Insurance Needs Calculator",
+        "Premium Comparison Tool",
+        "Insurance Risk Analyzer",
+        "Coverage Gap Calculator",
+        "Medical Risk Calculator",
+        "Health Budget Planner",
+        "Traffic Conversion Rate",
+        "Revenue Analytics Tool",
+        "Funnel Optimization Tool",
+        "KPI Performance Tracker",
+        "Website Analytics Tool",
+        "Growth Metrics Calculator",
+        "User Behavior Analyzer",
+        "Data Insights Tool",
+        "Conversion Tracking Tool",
+        "Performance Analytics Tool",
+        "Affiliate Income Calculator",
+        "Traffic Revenue Tool",
+        "Blog Earnings Calculator",
+        "CPC Earnings Calculator"
+    ]
+}

@@ -1,0 +1,29 @@
+<div class="interactive-wrapper">
+<div class="card shadow-sm border-0 mb-4" style="border-radius:24px;background:#fff;word-break:break-word">
+<div class="bg-white border-bottom-0 py-4 px-4" style="border-radius:24px 24px 0 0">
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+<div class="d-flex align-items-center"><div style="width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;background:#eef2ff"><i class="fas fa-weight-scale text-primary"></i></div>
+<div class="ms-3"><h5 class="mb-0 fw-bold text-dark">Grams to Moles Calculator</h5><p class="text-muted small mb-0">Convert mass in grams to moles using molar mass</p></div></div>
+<button class="btn btn-sm rounded-pill px-3" id="btn-reset" style="background:#f1f5f9;font-weight:600"><i class="fas fa-undo me-1"></i>Reset</button>
+</div></div>
+<div class="px-4 pb-4" style="overflow-x:auto">
+<div class="row g-3">
+<div class="col-md-6"><label class="form-label small fw-bold text-secondary text-uppercase mb-2">Mass (grams)</label><input type="number" id="in-g" class="form-control form-control-lg" value="18" step="0.01"></div>
+<div class="col-md-6"><label class="form-label small fw-bold text-secondary text-uppercase mb-2">Molar Mass (g/mol)</label><input type="number" id="in-mm" class="form-control form-control-lg" value="18.015" step="0.001"><div class="form-text">H₂O=18.015, NaCl=58.44, C₆H₁₂O₆=180.16</div></div></div>
+<div class="mt-4 text-center"><button class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm" id="btn-calc" style="min-width:260px;max-width:100%"><i class="fas fa-calculator me-2"></i>Calculate</button></div>
+<div class="mt-3 p-3 rounded-4 border" style="background:#f8fafc"><p class="mb-0 small text-muted"><i class="fas fa-info-circle text-primary me-2"></i><b>Formula:</b> n = mass / M where n=moles, M=molar mass (g/mol)</p></div>
+</div></div>
+<div id="res" class="card shadow-sm border-0 d-none mb-4" style="border-radius:24px;background:#fff;word-break:break-word">
+<div class="bg-white border-bottom-0 py-4 px-4" style="border-radius:24px 24px 0 0">
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+<div class="d-flex align-items-center"><div style="width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;background:#ecfdf5"><i class="fas fa-check-circle text-success"></i></div>
+<div class="ms-3"><h5 class="mb-0 fw-bold text-dark">Result</h5><p class="text-muted small mb-0">Detailed breakdown</p></div></div>
+<button class="btn btn-success btn-sm rounded-pill px-4 shadow-sm" id="btn-copy" style="min-width:120px"><i class="fas fa-copy me-1"></i>Copy</button>
+</div></div>
+<div class="px-4 pb-4" style="overflow-x:auto">
+<div class="p-4 rounded-4 bg-light border text-center mb-3"><div class="small fw-bold text-uppercase text-muted mb-1">RESULT</div><div class="display-4 fw-bold text-dark" id="out-main">—</div><div class="small text-muted fw-bold" id="out-unit"></div></div>
+<div id="out-detail" class="row g-3 mb-3"></div>
+<div class="p-4 rounded-4 bg-light border shadow-sm"><h6 class="fw-bold mb-3 small text-uppercase text-muted" style="letter-spacing:1px"><i class="fas fa-lightbulb text-warning me-2"></i>Insights</h6><div id="out-ins" class="small text-secondary"></div></div>
+</div></div></div>
+<style>.form-control-lg,.form-select-lg{border:1.5px solid #e2e8f0;border-radius:12px;font-size:1.05rem;padding:.75rem 1rem}.form-control:focus,.form-select:focus{border-color:#4f46e5;box-shadow:0 0 0 4px rgba(79,70,229,.1)}</style>
+<script>document.addEventListener("DOMContentLoaded",function(){document.getElementById("btn-calc").addEventListener("click",function(){var g=parseFloat(document.getElementById("in-g").value)||0,mm=parseFloat(document.getElementById("in-mm").value)||0;if(mm===0)return;var n=g/mm;var particles=n*6.022e23;document.getElementById("out-main").textContent=n.toFixed(6);document.getElementById("out-unit").textContent="moles";document.getElementById("out-detail").innerHTML='<div class="col-4"><div class="p-3 rounded-4 bg-light border text-center"><div class="small fw-bold text-uppercase text-muted mb-1">Mass</div><div class="h5 fw-bold mb-0 text-primary">'+g+' g</div></div></div><div class="col-4"><div class="p-3 rounded-4 bg-light border text-center"><div class="small fw-bold text-uppercase text-muted mb-1">Molar Mass</div><div class="h5 fw-bold mb-0 text-info">'+mm+' g/mol</div></div></div><div class="col-4"><div class="p-3 rounded-4 bg-light border text-center"><div class="small fw-bold text-uppercase text-muted mb-1">Particles</div><div class="h5 fw-bold mb-0 text-success">'+particles.toExponential(3)+'</div></div></div>';var ins=["n = "+g+" / "+mm+" = <b>"+n.toFixed(6)+" mol</b>","= <b>"+particles.toExponential(3)+"</b> molecules/atoms (× Avogadro's number)"];document.getElementById("out-ins").innerHTML='<ul class="list-unstyled mb-0">'+ins.map(function(i){return'<li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>'+i+'</li>';}).join("")+"</ul>";document.getElementById("res").classList.remove("d-none");document.getElementById("res").scrollIntoView({behavior:"smooth"});});document.getElementById("btn-reset").addEventListener("click",function(){document.getElementById("in-g").value=18;document.getElementById("in-mm").value=18.015;document.getElementById("res").classList.add("d-none");});document.getElementById("btn-copy").addEventListener("click",function(){navigator.clipboard.writeText("Moles: "+document.getElementById("out-main").textContent+" mol — ToolsHub");var b=this,o=b.innerHTML;b.innerHTML="<i class=\"fas fa-check me-1\"></i>Copied!";setTimeout(function(){b.innerHTML=o;},2000);});});</script>

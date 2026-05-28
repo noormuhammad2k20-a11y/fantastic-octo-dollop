@@ -1,0 +1,219 @@
+[
+    {
+        "requested_name": "Loan Interest Savings Calculator",
+        "slug": "loan-interest-savings-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "APR vs Flat Interest Calculator",
+        "slug": "apr-vs-flat-interest-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Loan Prepayment Penalty Calculator",
+        "slug": "loan-prepayment-penalty-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Loan Default Risk Calculator",
+        "slug": "loan-default-risk-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Co-signer Benefit Calculator",
+        "slug": "co-signer-benefit-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Loan Restructuring Calculator",
+        "slug": "loan-restructuring-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Variable Interest Impact Calculator",
+        "slug": "variable-interest-impact-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Loan Stress Test Calculator",
+        "slug": "loan-stress-test-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Debt Spiral Risk Calculator",
+        "slug": "debt-spiral-risk-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Loan Term Optimization Calculator",
+        "slug": "loan-term-optimization-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Credit Score Recovery Timeline Calculator",
+        "slug": "credit-score-recovery-timeline-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Credit Mix Impact Calculator",
+        "slug": "credit-mix-impact-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Credit History Age Calculator",
+        "slug": "credit-history-age-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Credit Profile Strength Score",
+        "slug": "credit-profile-strength-score",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Credit Risk Probability Calculator",
+        "slug": "credit-risk-probability-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Credit Account Strategy Planner",
+        "slug": "credit-account-strategy-planner",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "House Affordability vs Lifestyle Calculator",
+        "slug": "house-affordability-vs-lifestyle-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Mortgage Stress Risk Calculator",
+        "slug": "mortgage-stress-risk-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Property Tax Impact Calculator",
+        "slug": "property-tax-impact-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Rental Yield After Tax Calculator",
+        "slug": "rental-yield-after-tax-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Buy vs Rent Long-Term Wealth Calculator",
+        "slug": "buy-vs-rent-long-term-wealth-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Real Estate ROI with Financing Calculator",
+        "slug": "real-estate-roi-with-financing-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Property Exit Strategy Calculator",
+        "slug": "property-exit-strategy-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Multi-Property Portfolio Calculator",
+        "slug": "multi-property-portfolio-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Short-term vs Long-term Rental Calculator",
+        "slug": "short-term-vs-long-term-rental-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Property Cashflow Stress Calculator",
+        "slug": "property-cashflow-stress-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Investment Risk Tolerance Score",
+        "slug": "investment-risk-tolerance-score",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Portfolio Volatility Calculator",
+        "slug": "portfolio-volatility-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Inflation-Adjusted Retirement Calculator",
+        "slug": "inflation-adjusted-retirement-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Compounding Delay Impact Calculator",
+        "slug": "compounding-delay-impact-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    },
+    {
+        "requested_name": "Investment Drawdown Calculator",
+        "slug": "investment-drawdown-calculator",
+        "backend_exists": false,
+        "blade_view_exists": false,
+        "is_new": true
+    }
+]

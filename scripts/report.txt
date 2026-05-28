@@ -1,0 +1,230 @@
+[
+    {
+        "name": "Closing Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "closing-cost-calculator"
+    },
+    {
+        "name": "Financial Freedom Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "financial-freedom-calculator"
+    },
+    {
+        "name": "Emergency Fund Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "emergency-fund-calculator"
+    },
+    {
+        "name": "Lease vs Buy Car Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "lease-vs-buy-car-calculator"
+    },
+    {
+        "name": "Corporate Tax Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "corporate-tax-calculator"
+    },
+    {
+        "name": "Capital Gains Tax Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "capital-gains-tax-calculator"
+    },
+    {
+        "name": "Estate Tax Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "estate-tax-calculator"
+    },
+    {
+        "name": "Inheritance Tax Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "inheritance-tax-calculator"
+    },
+    {
+        "name": "House Flipping Profit Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "house-flipping-profit-calculator"
+    },
+    {
+        "name": "Rental Yield Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "rental-yield-calculator"
+    },
+    {
+        "name": "Churn Rate Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "churn-rate-calculator"
+    },
+    {
+        "name": "EBITDA Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "ebitda-calculator"
+    },
+    {
+        "name": "AI Financial Planner",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "ai-financial-planner"
+    },
+    {
+        "name": "Passive Income Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "passive-income-calculator"
+    },
+    {
+        "name": "Dental Implant Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "dental-implant-cost-calculator"
+    },
+    {
+        "name": "Loan Eligibility Checker",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "loan-eligibility-calculator"
+    },
+    {
+        "name": "Data Breach Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "data-breach-cost-calculator"
+    },
+    {
+        "name": "Cybersecurity ROI Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "cybersecurity-roi-calculator"
+    },
+    {
+        "name": "Cloud Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "cloud-cost-calculator"
+    },
+    {
+        "name": "Solar Panel Savings Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "solar-panel-savings-calculator"
+    },
+    {
+        "name": "EV Charging Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "ev-charging-cost-calculator"
+    },
+    {
+        "name": "Home Renovation Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "home-renovation-cost-calculator"
+    },
+    {
+        "name": "Roofing Cost Estimator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "roofing-cost-calculator"
+    },
+    {
+        "name": "HVAC Installation Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "hvac-installation-cost-calculator"
+    },
+    {
+        "name": "Plumbing Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "plumbing-cost-calculator"
+    },
+    {
+        "name": "Freight Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "freight-cost-calculator"
+    },
+    {
+        "name": "Shipping Cost Estimator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "shipping-cost-estimator"
+    },
+    {
+        "name": "Import Duty Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "import-duty-calculator"
+    },
+    {
+        "name": "Private Jet Charter Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "private-jet-charter-cost-calculator"
+    },
+    {
+        "name": "Injection Molding Cost Estimator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "injection-molding-cost-calculator"
+    },
+    {
+        "name": "Commercial Lease Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "commercial-lease-calculator"
+    },
+    {
+        "name": "Cap Rate Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "cap-rate-calculator"
+    },
+    {
+        "name": "Dividend Income Calculator",
+        "backend": "No",
+        "frontend": "Yes",
+        "slug": "dividend-income-calculator"
+    },
+    {
+        "name": "Asset Allocation Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "asset-allocation-calculator"
+    },
+    {
+        "name": "Pest Control Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "pest-control-cost-calculator"
+    },
+    {
+        "name": "Landscaping Cost Estimator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "landscaping-cost-calculator"
+    },
+    {
+        "name": "Moving Cost Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "moving-cost-calculator"
+    },
+    {
+        "name": "Relocation Expense Calculator",
+        "backend": "Yes",
+        "frontend": "Yes",
+        "slug": "relocation-expense-calculator"
+    }
+]

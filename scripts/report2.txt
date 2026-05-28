@@ -1,0 +1,116 @@
+[
+    {
+        "name": "California Child Support Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "california-child-support-calculator"
+    },
+    {
+        "name": "Texas Property Tax Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "texas-property-tax-calculator"
+    },
+    {
+        "name": "New York Salary Tax Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "new-york-salary-tax-calculator"
+    },
+    {
+        "name": "APR Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "apr-calculator"
+    },
+    {
+        "name": "Interest-Only Loan Calculator NZ",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "interest-only-loan-calculator-nz"
+    },
+    {
+        "name": "Simple vs Compound Interest Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "simple-vs-compound-interest-calculator"
+    },
+    {
+        "name": "Loan Payment Breakdown Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "loan-payment-breakdown-calculator"
+    },
+    {
+        "name": "Paycheck Tax Estimator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "paycheck-tax-estimator"
+    },
+    {
+        "name": "After-Tax Income Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "after-tax-income-calculator"
+    },
+    {
+        "name": "Cash on Cash Return Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "cash-on-cash-return-calculator"
+    },
+    {
+        "name": "Airbnb Profit Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "airbnb-profit-calculator"
+    },
+    {
+        "name": "Lead Value Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "lead-value-calculator"
+    },
+    {
+        "name": "Tip Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "tip-calculator"
+    },
+    {
+        "name": "Split Bill Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "split-bill-calculator"
+    },
+    {
+        "name": "Price per Unit Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "price-per-unit-calculator"
+    },
+    {
+        "name": "Hourly Wage to Salary Converter",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "hourly-wage-to-salary-converter"
+    },
+    {
+        "name": "Overtime Pay Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "overtime-pay-calculator"
+    },
+    {
+        "name": "Freelance Rate Calculator",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "freelance-rate-calculator"
+    },
+    {
+        "name": "Job Offer Comparison Tool",
+        "backend": "No",
+        "frontend": "No",
+        "slug": "job-offer-comparison-tool"
+    }
+]

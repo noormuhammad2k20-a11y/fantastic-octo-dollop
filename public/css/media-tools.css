@@ -1,0 +1,302 @@
+/* 
+    ================================================================
+    MEDIA TOOLS PREMIUM UI — IPHONE STYLE SAAS AESTHETIC
+    ================================================================
+    Standardized CSS for Video, Audio, and Image tools.
+*/
+
+:root {
+    --media-accent-h: 210; /* Blue-ish by default */
+    --media-accent: hsl(var(--media-accent-h), 100%, 50%);
+    --media-accent-soft: hsla(var(--media-accent-h), 100%, 50%, 0.1);
+    --media-card-bg: rgba(255, 255, 255, 0.85);
+    --media-border: rgba(229, 231, 235, 0.6);
+    --media-radius: 24px;
+    --media-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+}
+
+.media-rebuilt-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* --- Premium Cards --- */
+.media-card {
+    background: var(--media-card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--media-border);
+    border-radius: var(--media-radius);
+    padding: 2.5rem;
+    box-shadow: var(--media-shadow);
+    margin-bottom: 2.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.media-card:hover {
+    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.12);
+}
+
+/* --- Card Headers --- */
+.media-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.media-icon-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    background: var(--media-accent-soft);
+    color: var(--media-accent);
+    flex-shrink: 0;
+}
+
+.media-header h4 {
+    margin: 0;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: -0.5px;
+    font-size: 1.4rem;
+}
+
+.media-header p {
+    margin: 0.25rem 0 0;
+    font-size: 0.95rem;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+/* --- Pro Configuration Grid --- */
+.pro-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.option-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6b7280;
+    margin-bottom: 0.6rem;
+}
+
+.media-select, .media-input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: #f9fafb;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1f2937;
+    transition: all 0.2s ease;
+}
+
+.media-select:focus, .media-input:focus {
+    border-color: var(--media-accent);
+    background: #fff;
+    outline: none;
+    box-shadow: 0 0 0 4px var(--media-accent-soft);
+}
+
+/* --- Drop Zone --- */
+.media-drop-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(243, 244, 246, 0.4);
+}
+
+.media-drop-zone:hover, .media-drop-zone.dragover {
+    border-color: var(--media-accent);
+    background: var(--media-accent-soft);
+}
+
+.media-drop-zone .dz-icon {
+    font-size: 3rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.media-drop-zone.has-file .dz-icon {
+    color: var(--media-accent);
+}
+
+/* --- Quick Actions --- */
+.quick-actions-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+.btn-quick {
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4b5563;
+    transition: all 0.2s ease;
+}
+
+.btn-quick:hover {
+    border-color: var(--media-accent);
+    color: var(--media-accent);
+    background: var(--media-accent-soft);
+    transform: translateY(-2px);
+}
+
+/* --- Output/Results Card --- */
+.output-card-themed {
+    background: #fff;
+    border: 2px solid var(--media-border);
+    border-radius: var(--media-radius);
+    padding: 3rem;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.1);
+    display: none; /* Hidden until processing */
+}
+
+.output-hero {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.output-hero-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.output-hero-status {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #111827;
+    letter-spacing: -1px;
+}
+
+/* --- Media Player Layout --- */
+.media-preview-area {
+    background: #000;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+video.premium-player, audio.premium-player {
+    width: 100%;
+    outline: none;
+}
+
+/* --- Multi-Stage Progress --- */
+.progress-container {
+    margin: 2rem 0;
+}
+
+.stages-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.stages-line::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0; right: 0;
+    height: 3px;
+    background: #e5e7eb;
+    z-index: 0;
+    transform: translateY(-50%);
+}
+
+.stage-dot {
+    width: 32px; height: 32px;
+    background: #fff;
+    border: 3px solid #e5e7eb;
+    border-radius: 50%;
+    z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 800; color: #9ca3af;
+    transition: all 0.4s ease;
+}
+
+.stage-dot.active { border-color: var(--media-accent); color: var(--media-accent); box-shadow: 0 0 15px var(--media-accent-soft); }
+.stage-dot.completed { background: var(--media-accent); border-color: var(--media-accent); color: #fff; }
+
+.progress-track {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--media-accent), #60a5fa);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* --- Execution Button --- */
+.btn-process-media {
+    width: 100%;
+    background: #111827;
+    color: #fff;
+    border: none;
+    border-radius: 18px;
+    padding: 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn-process-media:hover {
+    background: #1f2937;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.btn-process-media i { color: #60a5fa; }
+
+/* --- Responsiveness --- */
+@media (max-width: 768px) {
+    .media-card { padding: 1.5rem; }
+    .media-header { flex-direction: column; text-align: center; gap: 1rem; }
+    .media-icon-circle { margin: 0 auto; }
+    .output-hero-status { font-size: 1.8rem; }
+}
+
+@keyframes pulse-soft {
+    0% { box-shadow: 0 0 0 0 var(--media-accent-soft); }
+    70% { box-shadow: 0 0 0 10px rgba(96, 165, 250, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(96, 165, 250, 0); }
+}

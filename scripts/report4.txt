@@ -1,0 +1,25 @@
+{
+    "duplicates": [],
+    "new_tools": [
+        "Ad Campaign Break-even Calculator",
+        "Marketing ROI Forecast Calculator",
+        "Revenue per User (RPU) Calculator",
+        "Subscription Churn Revenue Loss Calculator",
+        "SaaS Growth Projection Calculator",
+        "Customer Retention Value Calculator",
+        "Pricing Elasticity Calculator",
+        "Sales Funnel ROI Calculator",
+        "Business Scaling Calculator",
+        "Profit Forecast with Expansion Calculator",
+        "Financial Independence Timeline Calculator",
+        "Wealth Accumulation vs Expenses Calculator",
+        "Debt vs Investment Comparison Tool",
+        "Net Worth Optimization Calculator",
+        "Financial Freedom Strategy Calculator",
+        "Passive Income Timeline Calculator",
+        "Emergency Fund Survival Calculator",
+        "Tax Efficiency Optimization Calculator",
+        "Wealth Gap Closing Calculator",
+        "Retirement Lifestyle Sustainability Calculator"
+    ]
+}

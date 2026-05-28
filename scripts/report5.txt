@@ -1,0 +1,115 @@
+{
+    "duplicates": [
+        {
+            "requested": "Loan Interest Calculator",
+            "matched_with": "loan-interest-savings-calculator"
+        },
+        {
+            "requested": "Personal Loan Calculator",
+            "matched_with": "KEY: s"
+        },
+        {
+            "requested": "Debt Consolidation Calculator",
+            "matched_with": "KEY: s"
+        },
+        {
+            "requested": "APR Comparison Calculator",
+            "matched_with": "job-offer-comparison-tool"
+        },
+        {
+            "requested": "Loan Prepayment Calculator",
+            "matched_with": "loan-prepayment-penalty-calculator"
+        },
+        {
+            "requested": "Interest Savings Calculator",
+            "matched_with": "loan-interest-savings-calculator"
+        },
+        {
+            "requested": "Loan Payment Schedule",
+            "matched_with": "loan-payment-breakdown-calculator"
+        },
+        {
+            "requested": "Credit Mix Calculator",
+            "matched_with": "credit-mix-impact-calculator"
+        },
+        {
+            "requested": "Credit Risk Calculator",
+            "matched_with": "credit-risk-probability-calculator"
+        },
+        {
+            "requested": "Credit Score Predictor",
+            "matched_with": "credit-score-recovery-timeline-calculator"
+        },
+        {
+            "requested": "Rental Yield Calculator",
+            "matched_with": "rental-yield-calculator"
+        },
+        {
+            "requested": "Property Cash Flow",
+            "matched_with": "KEY: s"
+        },
+        {
+            "requested": "Real Estate ROI",
+            "matched_with": "real-estate-roi-with-financing-calculator"
+        },
+        {
+            "requested": "Property Investment Calculator",
+            "matched_with": "KEY: s"
+        },
+        {
+            "requested": "House Affordability Tool",
+            "matched_with": "house-affordability-vs-lifestyle-calculator"
+        },
+        {
+            "requested": "Real Estate Analyzer",
+            "matched_with": "real-estate-roi-with-financing-calculator"
+        },
+        {
+            "requested": "Investment Portfolio Calculator",
+            "matched_with": "KEY: s"
+        },
+        {
+            "requested": "Dollar Cost Averaging",
+            "matched_with": "KEY: s"
+        },
+        {
+            "requested": "Portfolio Diversification Tool",
+            "matched_with": "KEY: s"
+        },
+        {
+            "requested": "Investment Growth Calculator",
+            "matched_with": "KEY: s"
+        },
+        {
+            "requested": "Risk Return Analyzer",
+            "matched_with": "KEY: s"
+        },
+        {
+            "requested": "Capital Gains Calculator",
+            "matched_with": "KEY: s"
+        },
+        {
+            "requested": "Investment Planner Tool",
+            "matched_with": "KEY: s"
+        }
+    ],
+    "new_tools": [
+        "Mortgage Refinance Calculator",
+        "Loan Amortization Calculator",
+        "Borrowing Capacity Calculator",
+        "Credit Utilization Tracker",
+        "Credit Score Simulator",
+        "Credit Age Calculator",
+        "Credit Inquiry Impact",
+        "Credit Health Analyzer",
+        "Credit Limit Optimizer",
+        "Credit Utilization Ratio",
+        "Mortgage Affordability Calculator",
+        "Home Equity Calculator",
+        "Rental Profit Calculator",
+        "Property Value Estimator",
+        "Stock Average Calculator",
+        "Dividend Yield Calculator",
+        "Crypto Profit Calculator"
+    ]
+}

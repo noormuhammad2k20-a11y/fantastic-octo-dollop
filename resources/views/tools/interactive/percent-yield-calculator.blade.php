@@ -1,0 +1,29 @@
+<div class="interactive-wrapper">
+<div class="card shadow-sm border-0 mb-4" style="border-radius:24px;background:#fff;word-break:break-word">
+<div class="bg-white border-bottom-0 py-4 px-4" style="border-radius:24px 24px 0 0">
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+<div class="d-flex align-items-center"><div style="width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;background:#eef2ff"><i class="fas fa-percent text-primary"></i></div>
+<div class="ms-3"><h5 class="mb-0 fw-bold text-dark">Percent Yield Calculator</h5><p class="text-muted small mb-0">Calculate reaction efficiency from actual and theoretical yield</p></div></div>
+<button class="btn btn-sm rounded-pill px-3" id="btn-reset" style="background:#f1f5f9;font-weight:600"><i class="fas fa-undo me-1"></i>Reset</button>
+</div></div>
+<div class="px-4 pb-4" style="overflow-x:auto">
+<div class="row g-3">
+<div class="col-md-6"><label class="form-label small fw-bold text-secondary text-uppercase mb-2">Actual Yield (g)</label><input type="number" id="in-a" class="form-control form-control-lg" value="8.5" step="0.01"></div>
+<div class="col-md-6"><label class="form-label small fw-bold text-secondary text-uppercase mb-2">Theoretical Yield (g)</label><input type="number" id="in-th" class="form-control form-control-lg" value="10" step="0.01"></div></div>
+<div class="mt-4 text-center"><button class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm" id="btn-calc" style="min-width:260px;max-width:100%"><i class="fas fa-calculator me-2"></i>Calculate</button></div>
+<div class="mt-3 p-3 rounded-4 border" style="background:#f8fafc"><p class="mb-0 small text-muted"><i class="fas fa-info-circle text-primary me-2"></i><b>Formula:</b> % Yield = (Actual Yield / Theoretical Yield) × 100</p></div>
+</div></div>
+<div id="res" class="card shadow-sm border-0 d-none mb-4" style="border-radius:24px;background:#fff;word-break:break-word">
+<div class="bg-white border-bottom-0 py-4 px-4" style="border-radius:24px 24px 0 0">
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+<div class="d-flex align-items-center"><div style="width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;background:#ecfdf5"><i class="fas fa-check-circle text-success"></i></div>
+<div class="ms-3"><h5 class="mb-0 fw-bold text-dark">Result</h5><p class="text-muted small mb-0">Detailed breakdown</p></div></div>
+<button class="btn btn-success btn-sm rounded-pill px-4 shadow-sm" id="btn-copy" style="min-width:120px"><i class="fas fa-copy me-1"></i>Copy</button>
+</div></div>
+<div class="px-4 pb-4" style="overflow-x:auto">
+<div class="p-4 rounded-4 bg-light border text-center mb-3"><div class="small fw-bold text-uppercase text-muted mb-1">RESULT</div><div class="display-4 fw-bold text-dark" id="out-main">—</div><div class="small text-muted fw-bold" id="out-unit"></div></div>
+<div id="out-detail" class="row g-3 mb-3"></div>
+<div class="p-4 rounded-4 bg-light border shadow-sm"><h6 class="fw-bold mb-3 small text-uppercase text-muted" style="letter-spacing:1px"><i class="fas fa-lightbulb text-warning me-2"></i>Insights</h6><div id="out-ins" class="small text-secondary"></div></div>
+</div></div></div>
+<style>.form-control-lg,.form-select-lg{border:1.5px solid #e2e8f0;border-radius:12px;font-size:1.05rem;padding:.75rem 1rem}.form-control:focus,.form-select:focus{border-color:#4f46e5;box-shadow:0 0 0 4px rgba(79,70,229,.1)}</style>
+<script>document.addEventListener("DOMContentLoaded",function(){document.getElementById("btn-calc").addEventListener("click",function(){var a=parseFloat(document.getElementById("in-a").value)||0,t=parseFloat(document.getElementById("in-th").value)||0;if(t===0)return;var y=(a/t)*100;document.getElementById("out-main").textContent=y.toFixed(2)+"%";document.getElementById("out-unit").textContent="Percent Yield";document.getElementById("out-detail").innerHTML='<div class="col-6"><div class="p-3 rounded-4 bg-light border text-center"><div class="small fw-bold text-uppercase text-muted mb-1">Actual</div><div class="h5 fw-bold mb-0 text-primary">'+a+' g</div></div></div><div class="col-6"><div class="p-3 rounded-4 bg-light border text-center"><div class="small fw-bold text-uppercase text-muted mb-1">Theoretical</div><div class="h5 fw-bold mb-0 text-info">'+t+' g</div></div></div>';var ins=["% Yield = ("+a+" / "+t+") × 100 = <b>"+y.toFixed(2)+"%</b>"];if(y>100)ins.push("⚠ Yield >100% suggests impurities or measurement error.");else if(y>90)ins.push("Excellent yield — very efficient reaction.");else if(y<50)ins.push("Low yield — consider optimizing conditions.");document.getElementById("out-ins").innerHTML='<ul class="list-unstyled mb-0">'+ins.map(function(i){return'<li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>'+i+'</li>';}).join("")+"</ul>";document.getElementById("res").classList.remove("d-none");document.getElementById("res").scrollIntoView({behavior:"smooth"});});document.getElementById("btn-reset").addEventListener("click",function(){document.getElementById("in-a").value=8.5;document.getElementById("in-th").value=10;document.getElementById("res").classList.add("d-none");});document.getElementById("btn-copy").addEventListener("click",function(){navigator.clipboard.writeText("Percent Yield: "+document.getElementById("out-main").textContent+" — ToolsHub");var b=this,o=b.innerHTML;b.innerHTML="<i class=\"fas fa-check me-1\"></i>Copied!";setTimeout(function(){b.innerHTML=o;},2000);});});</script>
