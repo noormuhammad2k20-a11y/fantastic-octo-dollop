@@ -17,22 +17,43 @@ class SeoAutoGenerator
         return Cache::store(config('cache.default') === 'redis' ? 'redis' : 'file')->remember($cacheKey, 3600 * 24, function () use ($tool) {
             $name = $tool['h1'] ?? $tool['title'] ?? $tool['name'] ?? 'Online Tool';
             $category = $tool['category'] ?? 'Utility';
-            
-            $action = 'process your data and files seamlessly';
             $lowerName = strtolower($name);
             
-            if (str_contains($lowerName, 'calculator')) $action = 'calculate complex results accurately and instantly';
-            elseif (str_contains($lowerName, 'converter')) $action = 'convert files quickly between formats with high quality';
-            elseif (str_contains($lowerName, 'generator')) $action = 'generate unique content, passwords, or data securely';
-            elseif (str_contains($lowerName, 'compressor')) $action = 'reduce file sizes easily without losing quality';
-            elseif (str_contains($lowerName, 'formatter')) $action = 'format and beautify code or text for better readability';
-            elseif (str_contains($lowerName, 'extractor')) $action = 'extract important data or resources from your files';
-            elseif (str_contains($lowerName, 'downloader')) $action = 'download media safely and efficiently from various sources';
+            $actions = [
+                'calculator' => ['calculate accurate results instantly', 'perform complex calculations with precision', 'get instant estimates'],
+                'converter' => ['convert files quickly without quality loss', 'switch formats seamlessly online', 'transform your files securely'],
+                'generator' => ['generate unique data instantly', 'create custom outputs securely', 'build random and secure content'],
+                'compressor' => ['reduce file sizes drastically while keeping quality', 'shrink your files for easier sharing', 'compress data instantly online'],
+                'formatter' => ['beautify and format your code or text', 'clean up your text instantly', 'structure your data perfectly'],
+                'extractor' => ['extract essential data from your files', 'pull out the information you need quickly', 'parse and extract content securely'],
+                'downloader' => ['download media safely and fast', 'save online content to your device', 'grab your favorite media seamlessly']
+            ];
 
-            $desc = "{$name}: Use our professional-grade {$category} tool to {$action}. Fast, secure, and 100% free online utility with no signup or install required on ToolsHub.";
+            $actionChoices = ['process your data seamlessly', 'handle your files efficiently', 'get instant results online'];
+            foreach ($actions as $key => $choices) {
+                if (str_contains($lowerName, $key)) {
+                    $actionChoices = $choices;
+                    break;
+                }
+            }
+
+            $action = $actionChoices[array_rand($actionChoices)];
+
+            $templates = [
+                "Use the free {$name} to {$action}. Our {$category} tool is fast, secure, and requires no installation.",
+                "Looking for a {$name}? Easily {$action} directly in your browser. 100% free and secure on ToolsHub.",
+                "The {$name} helps you {$action}. It's a professional-grade {$category} utility that works instantly online.",
+                "Instantly {$action} with our {$name}. A fully free {$category} tool with no signup required.",
+                "Access the best {$name} to {$action}. Secure, fast, and completely free to use right now."
+            ];
+
+            $desc = $templates[array_rand($templates)];
             
             // Maximum 155 chars for description to ensure it fits in most mobile SERPs
-            return Str::limit($desc, 155, ''); 
+            if (strlen($desc) > 155) {
+                return Str::limit($desc, 152, '...'); 
+            }
+            return $desc;
         });
     }
 
@@ -59,33 +80,45 @@ class SeoAutoGenerator
         });
     }
 
-    /**
-     * Generate a dynamic FAQ for a tool based on its name and category.
-     */
     public static function generateFaq(array $tool): array
     {
-        $cacheKey = 'seo:faq:' . md5($tool['h1'] ?? $tool['name'] ?? 'tool');
+        $cacheKey = 'seo:faq:v3:' . md5($tool['h1'] ?? $tool['name'] ?? 'tool');
 
         return Cache::store(config('cache.default') === 'redis' ? 'redis' : 'file')->remember($cacheKey, 3600 * 24, function () use ($tool) {
             $name = $tool['h1'] ?? $tool['name'] ?? 'this tool';
             $category = $tool['category'] ?? 'utility';
+            $lowerName = strtolower($name);
+            $actionWord = str_contains($lowerName, 'calculator') ? 'calculations' : 
+                          (str_contains($lowerName, 'converter') ? 'conversions' : 'processing');
             
             return [
                 [
-                    'q' => "Is it free to use the {$name}?",
-                    'a' => "Yes, our {$name} is 100% free to use. ToolsHub provides over 1,500 professional-grade utilities without any subscription or hidden fees."
+                    'q' => "How exactly does the {$name} work?",
+                    'a' => "The {$name} utilizes advanced algorithms to perform {$actionWord} directly in your browser. By processing the specific parameters you input, it delivers highly accurate outputs tailored to your exact requirements."
                 ],
                 [
-                    'q' => "Are my files secure when using the {$name}?",
-                    'a' => "Absolutely. We prioritize your privacy. All files uploaded to our {$category} tools are processed on secure servers and automatically deleted immediately after processing."
+                    'q' => "Who can benefit the most from using this {$category} tool?",
+                    'a' => "This tool is ideal for professionals, students, and everyday users who need quick and reliable {$actionWord}. Whether you are working on a complex project or simply need a fast solution, our {$name} provides professional-grade results."
                 ],
                 [
-                    'q' => "Do I need to install any software for {$name}?",
-                    'a' => "No installation is required. ToolsHub is a cloud-based platform, meaning you can use the {$name} directly in your web browser on any device."
+                    'q' => "Are the results from the {$name} accurate and reliable?",
+                    'a' => "Yes, the {$name} is built on industry-standard formulas and best practices. We continuously test and refine our {$category} tools to ensure they produce precise, error-free results that you can confidently use for your tasks."
                 ],
                 [
-                    'q' => "Which browsers support the {$name}?",
-                    'a' => "Our tools are optimized for all modern web browsers, including Google Chrome, Mozilla Firefox, Safari, and Microsoft Edge, as well as mobile browsers on iOS and Android."
+                    'q' => "What are the common use cases for a {$name}?",
+                    'a' => "Common applications involve scenarios where manual {$actionWord} would be too time-consuming or prone to human error. Our tool automates these workflows, allowing you to focus on analysis and productivity."
+                ],
+                [
+                    'q' => "Can I use the {$name} for professional or academic projects?",
+                    'a' => "Absolutely. The outputs generated by the {$name} are designed to meet rigorous professional and academic standards. Many of our users integrate these results directly into their reports, presentations, and daily workflows."
+                ],
+                [
+                    'q' => "How can I get the best results when using this {$category} tool?",
+                    'a' => "To achieve the most accurate outcomes, ensure that all input data you provide to the {$name} is correct and properly formatted. Double-checking your parameters before processing will yield the highest quality {$actionWord}."
+                ],
+                [
+                    'q' => "Does the {$name} support advanced {$actionWord}?",
+                    'a' => "Our {$name} is equipped to handle both basic and advanced scenarios within its {$category} category. It is optimized to manage complex variables smoothly, providing comprehensive results without any performance lag."
                 ]
             ];
         });

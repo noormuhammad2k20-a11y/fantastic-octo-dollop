@@ -29,16 +29,23 @@ class ToolController extends Controller
             $tool['slug'] = $slug;
             
             // AUTOMATED SEO GENERATION (If missing or sub-optimal)
-            if (empty($tool['description']) || mb_strlen($tool['description'] ?? '') < 120) {
+            if (empty($tool['description']) || mb_strlen($tool['description'] ?? '') < 50) {
                 $tool['description'] = \App\Services\Seo\SeoAutoGenerator::generateDescription($tool);
             }
             if (empty($tool['title']) || mb_strlen($tool['title'] ?? '') < 50) {
                 $tool['title'] = \App\Services\Seo\SeoAutoGenerator::generateTitle($tool);
             }
             
-            // Auto-generate FAQ and Instructions if missing
+            // Auto-generate FAQ and Instructions
+            $autoFaq = \App\Services\Seo\SeoAutoGenerator::generateFaq($tool);
             if (empty($tool['custom_faq'])) {
-                $tool['custom_faq'] = \App\Services\Seo\SeoAutoGenerator::generateFaq($tool);
+                $tool['custom_faq'] = $autoFaq;
+            } else {
+                $currentCount = count($tool['custom_faq']);
+                if ($currentCount < 7) {
+                    $needed = 7 - $currentCount;
+                    $tool['custom_faq'] = array_merge($tool['custom_faq'], array_slice($autoFaq, 0, $needed));
+                }
             }
             if (empty($tool['instructions'])) {
                 $tool['instructions'] = \App\Services\Seo\SeoAutoGenerator::generateInstructions($tool);

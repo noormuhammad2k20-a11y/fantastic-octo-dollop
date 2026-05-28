@@ -112,10 +112,17 @@
                                     </a>
                                 </div>
                             @endforeach
-                            <div id="cat-no-results" class="col-12 text-center py-5 bg-white rounded-4 shadow-sm d-none">
-                                <i class="fas fa-search-minus fa-3x text-muted mb-3"></i>
-                                <h5>No tools match your search</h5>
-                                <p class="text-muted">Try a different keyword.</p>
+                            <div id="cat-no-results" class="col-12 text-center mt-3 mb-5 d-none w-100">
+                                <div class="py-5 px-4 bg-white rounded-4 shadow-sm border border-light" style="max-width: 600px; margin: 0 auto;">
+                                    <div class="d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px; background-color: #eff6ff; border-radius: 50%;">
+                                        <i class="fas fa-search" style="font-size: 2rem; color: #3b82f6;"></i>
+                                    </div>
+                                    <h4 class="fw-bold text-dark mb-2">No tools match your search</h4>
+                                    <p class="text-muted mb-4 px-md-5" style="font-size: 1.05rem;">We couldn't find any tools in this category matching your keywords. Please try a different search term.</p>
+                                    <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm fw-medium" onclick="document.getElementById('category-search').value = ''; document.getElementById('category-search').dispatchEvent(new Event('input'));">
+                                        <i class="fas fa-redo-alt me-2"></i> Clear Search
+                                    </button>
+                                </div>
                             </div>
                         @endif
                     </div>

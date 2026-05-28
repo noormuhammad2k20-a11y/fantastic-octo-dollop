@@ -1,23 +1,24 @@
-@extends('layouts.app')
 
-@section('title', $tool['title'])
-@section('meta_description', $tool['description'] ?? $tool['subtitle'] ?? '')
 
-@section('schema')
+<?php $__env->startSection('title', $tool['title']); ?>
+<?php $__env->startSection('meta_description', $tool['description'] ?? $tool['subtitle'] ?? ''); ?>
+
+<?php $__env->startSection('schema'); ?>
     <script type="application/ld+json">
-        {!! $schemaMarkup !!}
-    </script>
-@endsection
+        <?php echo $schemaMarkup; ?>
 
-@section('content')
+    </script>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
 
     <div class="container">
         <div class="row">
-            {{-- ════════════ MAIN COLUMN ════════════ --}}
+            
             <div class="col-12">
 
-                {{-- Breadcrumbs --}}
-                @php
+                
+                <?php
                     $categoryData = config('tools.categories')[$tool['category'] ?? ''] ?? null;
                     $breadcrumbItems = [];
                     if ($categoryData) {
@@ -27,67 +28,88 @@
                         ];
                     }
                     $breadcrumbItems[] = ['name' => $tool['h1'] ?? ($tool['title'] ?? 'Tool')];
-                @endphp
+                ?>
                 <div class="mt-4">
-                    @include('partials.breadcrumbs', ['items' => $breadcrumbItems])
+                    <?php echo $__env->make('partials.breadcrumbs', ['items' => $breadcrumbItems], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                 </div>
 
-                {{-- Tool Header (Title + Description at TOP) --}}
+                
                 <div class="tool-page-header text-center py-4" style="margin-bottom: 1.5rem;">
                     <h1 class="fw-black letter-spacing-tight mb-2">
-                        {{ $tool['h1'] ?? ($tool['title'] ?? ($tool['name'] ?? 'Tool')) }}
+                        <?php echo e($tool['h1'] ?? ($tool['title'] ?? ($tool['name'] ?? 'Tool'))); ?>
+
                     </h1>
                     <p class="subtitle text-secondary fs-5 opacity-75 mx-auto" style="max-width: 700px;">
-                        {{ $tool['description'] ?? $tool['subtitle'] ?? '' }}
+                        <?php echo e($tool['description'] ?? $tool['subtitle'] ?? ''); ?>
+
                     </p>
                 </div>
-                {{-- AdSense Slot (Configurable) --}}
-                <x-ad-slot type="top_banner" />
+                
+                <?php if (isset($component)) { $__componentOriginal43e1d90ca5f26d2b3f1aa3bef8ea2805 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal43e1d90ca5f26d2b3f1aa3bef8ea2805 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.ad-slot','data' => ['type' => 'top_banner']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('ad-slot'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['type' => 'top_banner']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal43e1d90ca5f26d2b3f1aa3bef8ea2805)): ?>
+<?php $attributes = $__attributesOriginal43e1d90ca5f26d2b3f1aa3bef8ea2805; ?>
+<?php unset($__attributesOriginal43e1d90ca5f26d2b3f1aa3bef8ea2805); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal43e1d90ca5f26d2b3f1aa3bef8ea2805)): ?>
+<?php $component = $__componentOriginal43e1d90ca5f26d2b3f1aa3bef8ea2805; ?>
+<?php unset($__componentOriginal43e1d90ca5f26d2b3f1aa3bef8ea2805); ?>
+<?php endif; ?>
 
-                {{-- Tool UI Section --}}
+                
                 <div class="tool-content" id="upload-content">
 
-                    @if(in_array(($tool['processor'] ?? ''), ['pro_calculator', 'pro']))
+                    <?php if(in_array(($tool['processor'] ?? ''), ['pro_calculator', 'pro'])): ?>
                         <div class="interactive-tool-container">
-                            @include('tools.pro-calculator', ['tool' => $tool])
+                            <?php echo $__env->make('tools.pro-calculator', ['tool' => $tool], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                         </div>
-                    @elseif(($tool['type'] ?? '') === 'interactive' || ($tool['processor'] ?? '') === 'interactive')
+                    <?php elseif(($tool['type'] ?? '') === 'interactive' || ($tool['processor'] ?? '') === 'interactive'): ?>
                         <div class="interactive-tool-container">
-                            @if(View::exists('tools.interactive.' . ($tool['slug'] ?? $slug)))
-                                @include('tools.interactive.' . ($tool['slug'] ?? $slug))
-                            @else
-                                @include('tools.interactive.generic-text-tool')
-                            @endif
+                            <?php if(View::exists('tools.interactive.' . ($tool['slug'] ?? $slug))): ?>
+                                <?php echo $__env->make('tools.interactive.' . ($tool['slug'] ?? $slug), array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                            <?php else: ?>
+                                <?php echo $__env->make('tools.interactive.generic-text-tool', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                            <?php endif; ?>
                         </div>
-                    @else
-                        {{-- Standard Upload Interface --}}
-                        @include('tools.partials.upload_zone', ['tool' => $tool, 'slug' => $slug])
-                    @endif
+                    <?php else: ?>
+                        
+                        <?php echo $__env->make('tools.partials.upload_zone', ['tool' => $tool, 'slug' => $slug], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                    <?php endif; ?>
 
-                    @if(($tool['type'] ?? '') !== 'interactive' && ($tool['processor'] ?? '') !== 'interactive' && ($tool['processor'] ?? '') !== 'pro_calculator')
-                        {{-- Progress & Result Sections --}}
-                        @include('tools.partials.progress_result', ['tool' => $tool])
-                    @endif
+                    <?php if(($tool['type'] ?? '') !== 'interactive' && ($tool['processor'] ?? '') !== 'interactive' && ($tool['processor'] ?? '') !== 'pro_calculator'): ?>
+                        
+                        <?php echo $__env->make('tools.partials.progress_result', ['tool' => $tool], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                    <?php endif; ?>
                 </div>
 
-                {{-- Extension CTA (Engagement-Triggered) --}}
+                
 
-                {{-- YMYL Disclaimers (Medical/Finance) --}}
-                @include('partials.disclaimers', ['category' => $tool['category'] ?? ''])
+                
+                <?php echo $__env->make('partials.disclaimers', ['category' => $tool['category'] ?? ''], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-                {{-- ════════════ SEO: HOW TO USE ════════════ --}}
+                
                 <section class="seo-section">
                     <h2>How to Use This Tool in 3 Steps</h2>
                     <div class="steps-grid">
-                        @if(!empty($tool['custom_steps']))
-                            @foreach($tool['custom_steps'] as $index => $step)
+                        <?php if(!empty($tool['custom_steps'])): ?>
+                            <?php $__currentLoopData = $tool['custom_steps']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $step): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="step-card">
-                                    <div class="step-number">{{ $index + 1 }}</div>
-                                    <h4>{{ $step['title'] }}</h4>
-                                    <p>{{ $step['description'] }}</p>
+                                    <div class="step-number"><?php echo e($index + 1); ?></div>
+                                    <h4><?php echo e($step['title']); ?></h4>
+                                    <p><?php echo e($step['description']); ?></p>
                                 </div>
-                            @endforeach
-                        @elseif(($tool['type'] ?? '') === 'interactive' || in_array(($tool['processor'] ?? ''), ['pro_calculator', 'pro']))
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php elseif(($tool['type'] ?? '') === 'interactive' || in_array(($tool['processor'] ?? ''), ['pro_calculator', 'pro'])): ?>
                             <div class="step-card">
                                 <div class="step-number">1</div>
                                 <h4>Enter Your Data</h4>
@@ -103,7 +125,7 @@
                                 <h4>Analyze or Copy</h4>
                                 <p>Once satisfied with the result, copy the data or analysis directly from the results panel.</p>
                             </div>
-                        @else
+                        <?php else: ?>
                             <div class="step-card">
                                 <div class="step-number">1</div>
                                 <h4>Upload Your File</h4>
@@ -119,45 +141,47 @@
                                 <h4>Download Result</h4>
                                 <p>Once processing is complete, check the results and click the "Download" button to save your file.</p>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </section>
 
-                {{-- Custom SEO Content Override --}}
-                @yield('seo_content')
+                
+                <?php echo $__env->yieldContent('seo_content'); ?>
 
-                {{-- Default PROFESSIONAL SEO CONTENT --}}
-                @if(!View::hasSection('seo_content'))
-                    @include('tools.partials.seo_content')
-                @endif
+                
+                <?php if(!View::hasSection('seo_content')): ?>
+                    <?php echo $__env->make('tools.partials.seo_content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                <?php endif; ?>
 
 
-                {{-- Custom FAQ Override --}}
-                @yield('faq_content')
+                
+                <?php echo $__env->yieldContent('faq_content'); ?>
 
-                {{-- ════════════ SEO: FAQ ════════════ --}}
-                @if(!View::hasSection('faq_content'))
+                
+                <?php if(!View::hasSection('faq_content')): ?>
                 <section class="seo-section" style="padding-top: 0;">
                     <h2>Frequently Asked Questions</h2>
                     <div class="faq-section">
                         <div class="accordion" id="faqAccordion">
-                            @if(!empty($tool['custom_faq']))
-                                @foreach($tool['custom_faq'] as $index => $faq)
+                            <?php if(!empty($tool['custom_faq'])): ?>
+                                <?php $__currentLoopData = $tool['custom_faq']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $faq): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <div class="accordion-item">
                                         <h2 class="accordion-header">
-                                            <button class="accordion-button {{ $index > 0 ? 'collapsed' : '' }}" type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#customFaq{{ $index }}">
-                                                {{ $faq['q'] }}
+                                            <button class="accordion-button <?php echo e($index > 0 ? 'collapsed' : ''); ?>" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#customFaq<?php echo e($index); ?>">
+                                                <?php echo e($faq['q']); ?>
+
                                             </button>
                                         </h2>
-                                        <div id="customFaq{{ $index }}" class="accordion-collapse collapse {{ $index === 0 ? 'show' : '' }}" data-bs-parent="#faqAccordion">
+                                        <div id="customFaq<?php echo e($index); ?>" class="accordion-collapse collapse <?php echo e($index === 0 ? 'show' : ''); ?>" data-bs-parent="#faqAccordion">
                                             <div class="accordion-body">
-                                                {!! $faq['a'] !!}
+                                                <?php echo $faq['a']; ?>
+
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
-                            @else
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php else: ?>
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -172,7 +196,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                @if(($tool['type'] ?? '') !== 'interactive')
+                                <?php if(($tool['type'] ?? '') !== 'interactive'): ?>
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -187,8 +211,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                @endif
-                                @if(isset($tool['max_size_mb']))
+                                <?php endif; ?>
+                                <?php if(isset($tool['max_size_mb'])): ?>
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -198,12 +222,12 @@
                                     </h2>
                                     <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                                         <div class="accordion-body">
-                                            The maximum file size for this tool is {{ $tool['max_size_mb'] }}MB. If you need to
+                                            The maximum file size for this tool is <?php echo e($tool['max_size_mb']); ?>MB. If you need to
                                             process larger files, please contact our support team.
                                         </div>
                                     </div>
                                 </div>
-                                @endif
+                                <?php endif; ?>
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -214,7 +238,7 @@
                                     <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                                         <div class="accordion-body">
                                             No. ToolsHub does not require any registration or login. 
-                                            {{ ($tool['type'] ?? '') === 'interactive' ? 'Simply use the tool' : 'Simply upload your file, process it,' }} 
+                                            <?php echo e(($tool['type'] ?? '') === 'interactive' ? 'Simply use the tool' : 'Simply upload your file, process it,'); ?> 
                                             and get your result. It's that simple.
                                         </div>
                                     </div>
@@ -233,17 +257,17 @@
                                         </div>
                                     </div>
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
                 </section>
-                @endif
+                <?php endif; ?>
 
-                {{-- Custom Related Tools Override --}}
-                @yield('related_tools')
                 
-                {{-- ════════════ RELATED TOOLS SECTION ════════════ --}}
-                @if(!View::hasSection('related_tools'))
+                <?php echo $__env->yieldContent('related_tools'); ?>
+                
+                
+                <?php if(!View::hasSection('related_tools')): ?>
                 <section class="seo-section related-tools-section" style="padding-top: 0;">
                     <div class="category-header">
                     
@@ -253,7 +277,7 @@
                     </div>
 
                     <div class="row g-3">
-                        @php
+                        <?php
                         // Inject slug into the array to preserve it after shuffle() which loses keys
                         $toolsWithSlugs = collect($tools)->map(function($item, $key) {
                             $item['slug'] = $key;
@@ -277,36 +301,36 @@
                                 ->take(12 - $related->count());
                             $related = $related->merge($keywordMatch);
                         }
-                    @endphp
-                        @foreach($related as $relTool)
+                    ?>
+                        <?php $__currentLoopData = $related; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $relTool): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-                                <a href="{{ url('/' . $relTool['slug']) }}" class="tool-card h-100">
+                                <a href="<?php echo e(url('/' . $relTool['slug'])); ?>" class="tool-card h-100">
                                     <div class="tool-icon">
-                                        <i class="{{ $relTool['icon'] ?? 'fas fa-tools' }}"></i>
+                                        <i class="<?php echo e($relTool['icon'] ?? 'fas fa-tools'); ?>"></i>
                                     </div>
                                     <div class="tool-body">
-                                        <h3 class="tool-name">{{ $relTool['h1'] ?? $relTool['title'] ?? 'Tool' }}</h3>
-                                        <p class="tool-desc">{{ $relTool['description'] ?? $relTool['subtitle'] ?? '' }}</p>
+                                        <h3 class="tool-name"><?php echo e($relTool['h1'] ?? $relTool['title'] ?? 'Tool'); ?></h3>
+                                        <p class="tool-desc"><?php echo e($relTool['description'] ?? $relTool['subtitle'] ?? ''); ?></p>
                                     </div>
                                     <span class="tool-arrow">Use tool <i class="fas fa-arrow-right"></i></span>
                                 </a>
                             </div>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
                 </section>
-                @endif
+                <?php endif; ?>
 
-                {{-- ════════════ CROSS-CATEGORY LINKS ════════════ --}}
-                {{-- @include('partials.cross-links') --}}
+                
+                
 
             </div>
         </div>
     </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
-    @if( ($tool['type'] ?? '') !== 'interactive' && !in_array(($tool['processor'] ?? ''), ['pro_calculator', 'pro']) )
+<?php $__env->startPush('scripts'); ?>
+    <?php if( ($tool['type'] ?? '') !== 'interactive' && !in_array(($tool['processor'] ?? ''), ['pro_calculator', 'pro']) ): ?>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             new UploadEngine({
@@ -320,14 +344,15 @@
                 statusText: '#status-text',
                 resultSection: '#result-section',
                 uploadContent: '#upload-content',
-                processUrl: "{{ route('tool.process', $slug) }}",
-                slug: '{{ $slug }}',
-                processor: '{{ $tool['processor'] ?? 'utility' }}',
-                acceptedTypes: {!! json_encode(array_filter(explode(',', $tool['accepted_types'] ?? ''))) !!},
-                maxSizeMB: {{ $tool['max_size_mb'] ?? 10 }},
-                supportsBatch: {{ ($tool['supports_batch'] ?? false) ? 'true' : 'false' }},
+                processUrl: "<?php echo e(route('tool.process', $slug)); ?>",
+                slug: '<?php echo e($slug); ?>',
+                processor: '<?php echo e($tool['processor'] ?? 'utility'); ?>',
+                acceptedTypes: <?php echo json_encode(array_filter(explode(',', $tool['accepted_types'] ?? ''))); ?>,
+                maxSizeMB: <?php echo e($tool['max_size_mb'] ?? 10); ?>,
+                supportsBatch: <?php echo e(($tool['supports_batch'] ?? false) ? 'true' : 'false'); ?>,
             });
         });
     </script>
-    @endif
-@endpush
+    <?php endif; ?>
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\Xamp\htdocs\ToolsHub\resources\views/tools/tool.blade.php ENDPATH**/ ?>

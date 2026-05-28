@@ -261,30 +261,6 @@
 </section>
 @endsection
 
-{{-- Related Tools Logic --}}
-@section('related_tools')
-<div class="mt-5">
-    <h3 class="fw-800 mb-4">You Might Also Need</h3>
-    <div class="row g-3">
-        @php
-            $rels = [
-                ['budget-calculator', 'fas fa-wallet', 'Budget Planner'],
-                ['dti-calculator', 'fas fa-scale-balanced', 'DTI Ratio'],
-                ['savings-calculator', 'fas fa-piggy-bank', 'Savings Growth'],
-                ['loan-calculator', 'fas fa-hand-holding-dollar', 'Loan Estimator']
-            ];
-        @endphp
-        @foreach($rels as $r)
-        <div class="col-md-3">
-            <a href="{{ url($r[0]) }}" class="d-flex align-items-center p-3 bg-white border rounded-3 text-decoration-none text-dark hover-shadow transition-all">
-                <div class="me-3 p-2 rounded-3 bg-light text-primary"><i class="{{ $r[1] }}"></i></div>
-                <div class="fw-bold small">{{ $r[2] }}</div>
-            </a>
-        </div>
-        @endforeach
-    </div>
-</div>
-@endsection
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
