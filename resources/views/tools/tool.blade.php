@@ -126,9 +126,22 @@
                 {{-- Custom SEO Content Override --}}
                 @yield('seo_content')
 
-                {{-- Default PROFESSIONAL SEO CONTENT --}}
+                {{-- Default PROFESSIONAL SEO CONTENT or Published Draft --}}
                 @if(!View::hasSection('seo_content'))
-                    @include('tools.partials.seo_content')
+                    @php
+                        $publishedDraft = \App\Models\ContentDraft::where('tool_slug', $slug)
+                            ->where('status', 'published')
+                            ->first();
+                    @endphp
+
+                    @if($publishedDraft)
+                        <section class="seo-section professional-seo-content">
+                            {{-- HOTFIX-1.0: Use correct DB column name --}}
+                            {!! $publishedDraft->draft_content !!}
+                        </section>
+                    @else
+                        @include('tools.partials.seo_content')
+                    @endif
                 @endif
 
 
@@ -296,8 +309,8 @@
                 </section>
                 @endif
 
-                {{-- ════════════ CROSS-CATEGORY LINKS ════════════ --}}
-                {{-- @include('partials.cross-links') --}}
+                {{-- ════════════ SEMANTIC LINKS ════════════ --}}
+                @include('partials.semantic-links', ['toolSlug' => $slug])
 
             </div>
         </div>

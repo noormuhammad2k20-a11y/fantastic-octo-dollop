@@ -86,61 +86,74 @@
 
                 {{-- YMYL Disclaimers (Medical/Finance) --}}
                 @include('partials.disclaimers', ['category' => $tool['category'] ?? ''])
-                {{-- ════════════ SEO: HOW TO USE ════════════ --}}
-                <section class="seo-section">
-                    <h2>How to Use {{ $tool['h1'] }} in 3 Easy Steps</h2>
-                    <div class="steps-grid">
-                        @if(!empty($tool['custom_steps']))
-                            @foreach($tool['custom_steps'] as $index => $step)
+                @php
+                    $publishedDraft = \App\Models\ContentDraft::where('tool_slug', $tool['slug'])
+                        ->where('status', 'published')
+                        ->first();
+                @endphp
+
+                @if($publishedDraft)
+                    <section class="seo-section professional-seo-content">
+                        {{-- HOTFIX-1.0: Use correct DB column name --}}
+                        {!! $publishedDraft->draft_content !!}
+                    </section>
+                @else
+                    {{-- ════════════ SEO: HOW TO USE ════════════ --}}
+                    <section class="seo-section">
+                        <h2>How to Use {{ $tool['h1'] }} in 3 Easy Steps</h2>
+                        <div class="steps-grid">
+                            @if(!empty($tool['custom_steps']))
+                                @foreach($tool['custom_steps'] as $index => $step)
+                                    <div class="step-card">
+                                        <div class="step-number">{{ $index + 1 }}</div>
+                                        <h4>{{ $step['title'] }}</h4>
+                                        <p>{{ $step['description'] }}</p>
+                                    </div>
+                                @endforeach
+                            @elseif(!empty($tool['instructions']) && is_array($tool['instructions']))
+                                @foreach(array_slice($tool['instructions'], 0, 3) as $index => $step)
+                                    <div class="step-card">
+                                        <div class="step-number">{{ $index + 1 }}</div>
+                                        <h4>Step {{ $index + 1 }}</h4>
+                                        <p>{{ $step }}</p>
+                                    </div>
+                                @endforeach
+                            @elseif(($tool['type'] ?? '') === 'interactive' || in_array(($tool['processor'] ?? ''), ['pro_calculator', 'pro']))
                                 <div class="step-card">
-                                    <div class="step-number">{{ $index + 1 }}</div>
-                                    <h4>{{ $step['title'] }}</h4>
-                                    <p>{{ $step['description'] }}</p>
+                                    <div class="step-number">1</div>
+                                    <h4>Enter Your Data</h4>
+                                    <p>Provide the input values, text, or configuration in the interactive workspace above.</p>
                                 </div>
-                            @endforeach
-                        @elseif(!empty($tool['instructions']) && is_array($tool['instructions']))
-                            @foreach(array_slice($tool['instructions'], 0, 3) as $index => $step)
                                 <div class="step-card">
-                                    <div class="step-number">{{ $index + 1 }}</div>
-                                    <h4>Step {{ $index + 1 }}</h4>
-                                    <p>{{ $step }}</p>
+                                    <div class="step-number">2</div>
+                                    <h4>Real-Time Results</h4>
+                                    <p>The tool will process your input instantly. You can see the results update as you type.</p>
                                 </div>
-                            @endforeach
-                        @elseif(($tool['type'] ?? '') === 'interactive' || in_array(($tool['processor'] ?? ''), ['pro_calculator', 'pro']))
-                            <div class="step-card">
-                                <div class="step-number">1</div>
-                                <h4>Enter Your Data</h4>
-                                <p>Provide the input values, text, or configuration in the interactive workspace above.</p>
-                            </div>
-                            <div class="step-card">
-                                <div class="step-number">2</div>
-                                <h4>Real-Time Results</h4>
-                                <p>The tool will process your input instantly. You can see the results update as you type.</p>
-                            </div>
-                            <div class="step-card">
-                                <div class="step-number">3</div>
-                                <h4>Analyze or Copy</h4>
-                                <p>Once satisfied with the result, copy the data or analysis directly from the results panel.</p>
-                            </div>
-                        @else
-                            <div class="step-card">
-                                <div class="step-number">1</div>
-                                <h4>Upload Your File</h4>
-                                <p>Drag and drop your file into the upload zone above, or click to browse from your device.</p>
-                            </div>
-                            <div class="step-card">
-                                <div class="step-number">2</div>
-                                <h4>Configure Options</h4>
-                                <p>Adjust the settings based on your needs: quality, format, or dimensions, then click "Process File".</p>
-                            </div>
-                            <div class="step-card">
-                                <div class="step-number">3</div>
-                                <h4>Download Result</h4>
-                                <p>Once processing is complete, check the results and click the "Download" button to save your file.</p>
-                            </div>
-                        @endif
-                    </div>
-                </section>
+                                <div class="step-card">
+                                    <div class="step-number">3</div>
+                                    <h4>Analyze or Copy</h4>
+                                    <p>Once satisfied with the result, copy the data or analysis directly from the results panel.</p>
+                                </div>
+                            @else
+                                <div class="step-card">
+                                    <div class="step-number">1</div>
+                                    <h4>Upload Your File</h4>
+                                    <p>Drag and drop your file into the upload zone above, or click to browse from your device.</p>
+                                </div>
+                                <div class="step-card">
+                                    <div class="step-number">2</div>
+                                    <h4>Configure Options</h4>
+                                    <p>Adjust the settings based on your needs: quality, format, or dimensions, then click "Process File".</p>
+                                </div>
+                                <div class="step-card">
+                                    <div class="step-number">3</div>
+                                    <h4>Download Result</h4>
+                                    <p>Once processing is complete, check the results and click the "Download" button to save your file.</p>
+                                </div>
+                            @endif
+                        </div>
+                    </section>
+                @endif
 
 
                 {{-- ════════════ SEO: FAQ ════════════ --}}
@@ -192,8 +205,8 @@
                     </div>
                 </section>
 
-                {{-- ════════════ CROSS-CATEGORY LINKS ════════════ --}}
-                @include('partials.cross-links')
+                {{-- ════════════ SEMANTIC LINKS ════════════ --}}
+                @include('partials.semantic-links', ['toolSlug' => $tool['slug']])
 
             </div>
         </div>

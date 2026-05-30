@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    // HOTFIX-1.0: OpenAI API configuration for SEO content generation
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY', ''),
+        'model'   => env('OPENAI_CONTENT_MODEL', 'gpt-4o'),
+    ],
+
 ];

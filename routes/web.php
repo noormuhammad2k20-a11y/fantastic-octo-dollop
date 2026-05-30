@@ -410,7 +410,7 @@ Route::prefix('admin/monitor')->name('admin.monitor.')->group(function () {
     Route::post('/fix-processor', [\App\Http\Controllers\MonitoringDashboardController::class, 'fixProcessor'])->name('fix-processor');
     Route::post('/bulk-fix-processors', [\App\Http\Controllers\MonitoringDashboardController::class, 'bulkFixProcessors'])->name('bulk-fix');
     Route::get('/api/scan-history', [\App\Http\Controllers\MonitoringDashboardController::class, 'scanHistoryApi'])->name('scan-history');
-    Route::get('/api/tool-detail/{slug}', [\App\Http\Controllers\MonitoringDashboardController::class, 'toolDetail'])->name('tool-detail');
+
     Route::post('/security-audit', [\App\Http\Controllers\MonitoringDashboardController::class, 'securityAudit'])->name('security-audit');
     Route::post('/housekeeping', [\App\Http\Controllers\MonitoringDashboardController::class, 'housekeeping'])->name('housekeeping');
     Route::post('/log-failed-tool', [\App\Http\Controllers\MonitoringDashboardController::class, 'logFailedTool'])->name('log-failed-tool');
@@ -457,3 +457,7 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => $localePattern], '
 // 2. Register routes WITHOUT locale prefix (for defaults / base URLs)
 Route::group([], $coreRoutes);
 
+// ─── SEO AUTOMATION ADMIN ROUTES ────────────────────────────────
+Route::prefix('admin/seo')->name('admin.')->group(function () {
+    Route::resource('content-drafts', \App\Http\Controllers\Admin\ContentDraftController::class)->only(['index', 'edit', 'update']);
+});

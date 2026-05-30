@@ -141,4 +141,30 @@ return [
             'h1_template'          => '{tool_name} API',
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Content Generation Settings (HOTFIX-1.0)
+    |--------------------------------------------------------------------------
+    | Controls batch processing, memory limits, and time limits for the
+    | seo:generate-content command when processing 1400+ tools.
+    */
+    'content_generation' => [
+        'batch_size'    => (int) env('SEO_CONTENT_BATCH_SIZE', 50),
+        'memory_limit'  => env('SEO_CONTENT_MEMORY_LIMIT', '512M'),
+        'time_limit'    => (int) env('SEO_CONTENT_TIME_LIMIT', 3600),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | OpenAI Rate Limiting Settings (HOTFIX-1.0)
+    |--------------------------------------------------------------------------
+    | Prevents 429 rate limit errors during bulk content generation runs.
+    */
+    'openai' => [
+        'requests_per_minute'       => (int) env('OPENAI_RPM_LIMIT', 20),
+        'delay_between_requests_ms' => (int) env('OPENAI_REQUEST_DELAY_MS', 3000),
+        'max_retries'               => 3,
+        'retry_delay_seconds'       => 60,
+    ],
 ];

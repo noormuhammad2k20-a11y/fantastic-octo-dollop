@@ -1,0 +1,16 @@
+# Python Semantic Extractor for ToolsHub SEO Automation
+# ──────────────────────────────────────────────────────
+# FastAPI-based microservice that extracts semantic keywords
+# from multiple sources (Google Suggest, PAA, pytrends, NLP)
+# and returns structured data for the Laravel application.
+#
+# Usage:
+#   pip install -r requirements.txt
+#   uvicorn main:app --port 8100 --reload
+
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+httpx>=0.25.0
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+openai>=1.12.0

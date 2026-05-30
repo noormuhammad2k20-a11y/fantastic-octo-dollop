@@ -150,7 +150,21 @@
 
                 
                 <?php if(!View::hasSection('seo_content')): ?>
-                    <?php echo $__env->make('tools.partials.seo_content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                    <?php
+                        $publishedDraft = \App\Models\ContentDraft::where('tool_slug', $slug)
+                            ->where('status', 'published')
+                            ->first();
+                    ?>
+
+                    <?php if($publishedDraft): ?>
+                        <section class="seo-section professional-seo-content">
+                            
+                            <?php echo $publishedDraft->draft_content; ?>
+
+                        </section>
+                    <?php else: ?>
+                        <?php echo $__env->make('tools.partials.seo_content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                    <?php endif; ?>
                 <?php endif; ?>
 
 
@@ -321,7 +335,7 @@
                 <?php endif; ?>
 
                 
-                
+                <?php echo $__env->make('partials.semantic-links', ['toolSlug' => $slug], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
             </div>
         </div>
