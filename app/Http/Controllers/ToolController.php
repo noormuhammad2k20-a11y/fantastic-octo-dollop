@@ -63,8 +63,35 @@ class ToolController extends Controller
             $schemaMarkup = $schemaGenerator->generate($tool, url()->current(), $faqData, $categoryData);
             View::share('schemaMarkup', $schemaMarkup);
 
+            // Load approved SEO content
+            $seoDraft = \App\Models\ContentDraft::where('tool_slug', $tool['slug'])
+                ->where('status', 'approved')
+                ->select(['draft_content', 'outline_json', 'word_count'])
+                ->first();
 
-            return view('tools.tool', compact('tool', 'slug', 'tools', 'schemaMarkup'));
+            // Load related tools from internal_links
+            $relatedTools = \Illuminate\Support\Facades\DB::table('internal_links as il')
+                ->join('tool_health_checks as t', 't.tool_slug', '=', 'il.target_tool_slug')
+                ->where('il.source_tool_slug', $tool['slug'])
+                ->where('il.is_active', 1)
+                ->orderByDesc('il.relevance_score')
+                ->limit(6)
+                ->select([
+                    't.tool_slug',
+                    'il.anchor_text_primary',
+                    'il.relevance_score',
+                ])
+                ->get();
+
+            // Load PAA questions for this tool
+            $paaQuestions = \Illuminate\Support\Facades\DB::table('semantic_keywords')
+                ->where('tool_slug', $tool['slug'])
+                ->where('keyword_type', 'paa')
+                ->where('is_active', 1)
+                ->pluck('keyword');
+
+
+            return view('tools.tool', compact('tool', 'slug', 'tools', 'schemaMarkup', 'seoDraft', 'relatedTools', 'paaQuestions'));
 
 
         }

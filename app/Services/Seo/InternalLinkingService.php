@@ -2,141 +2,113 @@
 
 namespace App\Services\Seo;
 
-use App\Models\ToolClusterMap;
-use App\Models\SemanticKeyword;
-use App\Models\InternalLink;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
 
 class InternalLinkingService
 {
     /**
-     * Generate the semantic internal link graph for all tools.
-     * Finds related tools based on shared topical clusters and
-     * semantic overlap.
-     * 
-     * @param int $maxLinksPerTool Maximum outgoing links to generate per tool
+     * Find related tools based on slug patterns.
      */
-    public function generateLinkGraph(int $maxLinksPerTool = 8): void
+    public function findRelatedTools(string $slug, Collection $allTools): Collection
     {
-        // 1. Get all tools that belong to clusters
-        $allMappings = ToolClusterMap::with('cluster')->get()->groupBy('tool_slug');
-        $allToolSlugs = $allMappings->keys();
+        $parts    = explode('-', $slug);
+        $category = $this->detectCategoryFromSlug($parts);
 
-        foreach ($allToolSlugs as $sourceSlug) {
-            $this->generateLinksForTool($sourceSlug, $allMappings, $maxLinksPerTool);
-        }
-    }
+        return $allTools
+            ->filter(fn($t) => $t->tool_slug !== $slug)
+            ->map(function($t) use ($slug, $parts, $category) {
+                $tParts    = explode('-', $t->tool_slug);
+                $tCategory = $this->detectCategoryFromSlug($tParts);
+                $score     = 0;
 
-    /**
-     * Generate outgoing links for a specific tool.
-     */
-    public function generateLinksForTool(string $sourceSlug, $allMappings, int $limit): void
-    {
-        $sourceMappings = $allMappings->get($sourceSlug);
-        if (!$sourceMappings) {
-            return;
-        }
-
-        $sourceClusterIds = $sourceMappings->pluck('cluster_id')->toArray();
-        $targetCandidates = [];
-
-        // 2. Find target candidates sharing the same clusters
-        foreach ($allMappings as $targetSlug => $targetMappings) {
-            if ($targetSlug === $sourceSlug) {
-                continue;
-            }
-
-            $targetClusterIds = $targetMappings->pluck('cluster_id')->toArray();
-            $sharedClusters = array_intersect($sourceClusterIds, $targetClusterIds);
-
-            if (!empty($sharedClusters)) {
-                // Calculate relevance based on number of shared clusters + base score
-                $relevance = 0.5 + (count($sharedClusters) * 0.1);
-                
-                // Bonus if they share a primary cluster
-                $sharesPrimary = $sourceMappings->where('is_primary', true)->whereIn('cluster_id', $targetClusterIds)->isNotEmpty();
-                if ($sharesPrimary) {
-                    $relevance += 0.2;
+                // Same category = high relevance
+                if ($category === $tCategory && $category !== 'general') {
+                    $score += 40;
                 }
 
-                $targetCandidates[$targetSlug] = min(1.0, $relevance);
-            }
-        }
+                // Shared slug tokens
+                $shared = count(array_intersect($parts, $tParts));
+                $score += ($shared * 15);
 
-        // Sort candidates by highest relevance
-        arsort($targetCandidates);
-        $selectedTargets = array_slice($targetCandidates, 0, $limit, true);
+                // Both are same type (calculator, generator, etc.)
+                $types = ['calculator', 'generator', 'converter', 'checker'];
+                foreach ($types as $type) {
+                    if (in_array($type, $parts) && in_array($type, $tParts)) {
+                        $score += 10;
+                        break;
+                    }
+                }
 
-        // 3. Generate links with semantic anchor texts
-        foreach ($selectedTargets as $targetSlug => $relevanceScore) {
-            $this->createOrUpdateLink($sourceSlug, $targetSlug, $relevanceScore);
-        }
+                $t->score = $score;
+                return $t;
+            })
+            ->filter(fn($t) => $t->score >= 25) // Minimum relevance threshold
+            ->sortByDesc('score');
     }
 
     /**
-     * Create or update the link pair in the database with rich anchor texts.
+     * Detect category from slug tokens.
      */
-    private function createOrUpdateLink(string $sourceSlug, string $targetSlug, float $relevance): void
+    private function detectCategoryFromSlug(array $parts): string
     {
-        // Generate anchor texts based on the target tool's semantic keywords
-        $anchors = $this->generateAnchorTexts($targetSlug);
+        $finance   = ['roi', 'mortgage', 'loan', 'interest', 'tax', 'salary', 'profit',
+                      'margin', 'cagr', 'vat', 'budget', 'revenue', 'savings', 'credit'];
+        $health    = ['bmi', 'calorie', 'bmr', 'weight', 'blood', 'body', 'protein', 'water'];
+        $developer = ['json', 'base64', 'jwt', 'hash', 'md5', 'sha', 'regex', 'url', 'html', 'css'];
+        $math      = ['percentage', 'fraction', 'derivative', 'probability', 'prime', 'algebra'];
+        $physics   = ['velocity', 'force', 'energy', 'momentum', 'ohm', 'torque', 'pressure'];
 
-        InternalLink::updateOrCreate(
-            [
-                'source_tool_slug' => $sourceSlug,
-                'target_tool_slug' => $targetSlug,
+        foreach ($parts as $p) {
+            if (in_array($p, $finance)) return 'finance';
+            if (in_array($p, $health)) return 'health';
+            if (in_array($p, $developer)) return 'developer';
+            if (in_array($p, $math)) return 'math';
+            if (in_array($p, $physics)) return 'physics';
+        }
+        return 'general';
+    }
+
+    /**
+     * Generate descriptive anchor texts based on target slug pattern.
+     */
+    public function generateAnchors(string $source, string $target): array
+    {
+        $targetName = ucwords(str_replace('-', ' ', $target));
+        $targetParts = explode('-', $target);
+
+        // Generate descriptive, non-generic anchor text
+        $isCalculator = in_array('calculator', $targetParts);
+        $isConverter  = in_array('converter', $targetParts);
+        $isGenerator  = in_array('generator', $targetParts);
+
+        $concept = implode(' ', array_filter($targetParts, fn($p) =>
+            !in_array($p, ['calculator', 'converter', 'generator', 'checker', 'pro', 'online'])
+        ));
+        $conceptName = ucwords($concept);
+
+        $anchors = match(true) {
+            $isCalculator => [
+                "calculate {$conceptName}",
+                "{$conceptName} calculation tool",
+                "use our {$targetName}",
             ],
-            [
-                'anchor_text_primary' => $anchors['primary'],
-                'anchor_text_variations' => $anchors['variations'],
-                'relevance_score' => $relevance,
-                'placement_zone' => 'related_section',
-                'auto_generated' => true,
-                'last_refreshed_at' => now(),
+            $isConverter => [
+                "convert {$conceptName}",
+                "{$conceptName} conversion",
+                "{$targetName} tool",
+            ],
+            $isGenerator => [
+                "generate {$conceptName}",
+                "{$conceptName} generator tool",
+                "create {$conceptName} online",
+            ],
+            default => [
+                $targetName,
+                "use {$targetName}",
+                "{$conceptName} tool",
             ]
-        );
-    }
+        };
 
-    /**
-     * Generate semantically rich anchor text variations for a target tool.
-     */
-    private function generateAnchorTexts(string $targetSlug): array
-    {
-        // Fallback generic name based on slug
-        $fallbackName = ucwords(str_replace('-', ' ', $targetSlug));
-
-        // Get high-confidence keywords for the target tool
-        $keywords = SemanticKeyword::where('tool_slug', $targetSlug)
-            ->where('is_active', true)
-            ->orderByDesc('confidence_score')
-            ->limit(5)
-            ->get();
-
-        if ($keywords->isEmpty()) {
-            return [
-                'primary' => $fallbackName,
-                'variations' => [],
-            ];
-        }
-
-        // Separate by intent if possible
-        $transactional = $keywords->where('search_intent', 'transactional')->first();
-        $primaryKw = $transactional ? $transactional->keyword : $keywords->first()->keyword;
-
-        $variations = $keywords->pluck('keyword')->reject(function ($kw) use ($primaryKw) {
-            return strtolower($kw) === strtolower($primaryKw);
-        })->values()->toArray();
-
-        // Add the fallback name as a variation just in case
-        if (!in_array(strtolower($fallbackName), array_map('strtolower', $variations)) 
-            && strtolower($primaryKw) !== strtolower($fallbackName)) {
-            $variations[] = $fallbackName;
-        }
-
-        return [
-            'primary' => ucwords((string) $primaryKw),
-            'variations' => array_map('ucwords', $variations),
-        ];
+        return array_map('trim', $anchors);
     }
 }

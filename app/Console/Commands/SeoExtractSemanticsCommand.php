@@ -3,143 +3,106 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Services\Seo\SemanticExtractionService;
-use App\Models\ToolAnalytics;
+use App\Services\Seo\SemanticExtractorService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class SeoExtractSemanticsCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    // HOTFIX-1.0: Removed hardcoded limit=10 default. 0 = process all tools.
-    protected $signature = 'seo:extract-semantics 
-                            {--limit=0 : Number of tools to process (0 = all)}
-                            {--tool= : Process a specific tool slug}
-                            {--popular : Process the most popular tools first}
-                            {--dry-run : Show what would be processed without making changes}';
+    protected $signature = 'seo:extract-semantics
+        {--limit=   : Max tools}
+        {--tool=    : Single tool slug}
+        {--dry-run  : Preview only}
+        {--force    : Re-extract even if data exists}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Extract semantic keywords and clusters for tools via Python microservice';
-
-    /**
-     * Execute the console command.
-     */
-    public function handle(SemanticExtractionService $extractor): int
+    public function handle(SemanticExtractorService $extractor): int
     {
-        $this->info("Starting SEO Semantic Extraction Process...");
+        $limit   = $this->option('limit') ? (int) $this->option('limit') : null;
+        ini_set('memory_limit', '256M');
 
-        $tools = $this->getToolsToProcess();
+        $query = DB::table('tool_health_checks as t')
+            ->select('t.tool_slug')
+            ->where('t.status', 'ok');
 
-        if (empty($tools)) {
-            $this->error("No tools found to process.");
-            return Command::FAILURE;
+        if (!$this->option('force')) {
+            // Skip tools that already have semantic keywords
+            $query->whereNotIn('t.tool_slug',
+                DB::table('semantic_keywords')->distinct()->pluck('tool_slug')
+            );
         }
 
-        $totalTools = count($tools);
-        $this->info("Found {$totalTools} tools to process.");
+        if ($slug = $this->option('tool')) {
+            $query->where('t.tool_slug', $slug);
+        }
 
-        // HOTFIX-1.0: Dry-run mode
-        if ($this->option('dry-run')) {
-            $this->info("DRY RUN MODE — No changes will be made");
-            foreach ($tools as $slug => $config) {
-                $this->line("  Would process: [{$slug}]");
-            }
+        if ($limit) $query->limit($limit);
+
+        $total = $query->count();
+
+        if ($total === 0) {
+            $this->info("No tools need semantic extraction.");
             return Command::SUCCESS;
         }
-        
-        $bar = $this->output->createProgressBar($totalTools);
+
+        if ($this->option('dry-run')) {
+            $this->info("DRY RUN: Would extract semantics for {$total} tools");
+            return Command::SUCCESS;
+        }
+
+        $this->info("Extracting semantics for {$total} tools...");
+        $bar = $this->output->createProgressBar($total);
         $bar->start();
 
-        $successCount = 0;
-        $failCount = 0;
+        $success = 0; $failed = 0;
 
-        foreach ($tools as $slug => $config) {
-            try {
-                // 1. Call Python API
-                $payload = $extractor->extractFromService($slug, $config);
+        $query->orderBy('t.id')->chunk(25, function($tools) use (
+            $extractor, $bar, &$success, &$failed
+        ) {
+            foreach ($tools as $tool) {
+                try {
+                    $keywords = $extractor->extractForTool($tool->tool_slug);
 
-                if ($payload) {
-                    // 2. Persist to MySQL
-                    $persisted = $extractor->persistExtraction($slug, $payload);
-                    if ($persisted) {
-                        $successCount++;
+                    if ($keywords->isEmpty()) {
+                        $failed++;
                     } else {
-                        $failCount++;
-                    }
-                } else {
-                    $failCount++;
-                }
-            } catch (\Exception $e) {
-                $failCount++;
-                Log::error("Command error extracting semantics for {$slug}: " . $e->getMessage());
-            }
+                        foreach ($keywords as $kw) {
+                            DB::table('semantic_keywords')->updateOrInsert(
+                                [
+                                    'tool_slug'    => $tool->tool_slug,
+                                    'keyword'      => mb_strtolower($kw['keyword']),
+                                    'keyword_type' => $kw['type'],
+                                ],
+                                [
+                                    'search_intent'    => $kw['intent'] ?? 'informational',
+                                    'source'           => $kw['source'],
+                                    'confidence_score' => $kw['confidence'] ?? 0.80,
+                                    'is_active'        => 1,
+                                    'language'         => 'en',
+                                    'extracted_at'     => now(),
+                                    'created_at'       => now(),
+                                    'updated_at'       => now(),
+                                ]
+                            );
+                        }
 
-            $bar->advance();
-            
-            // Basic delay between tools to prevent overwhelming the local service
-            // (The Python service handles Google rate limiting internally)
-            usleep(500000); // 500ms
-        }
+                        $success++;
+                        Log::channel('seo')->info("Semantics extracted: {$tool->tool_slug} ({$keywords->count()} terms)");
+                    }
+
+                } catch (\Exception $e) {
+                    $failed++;
+                    Log::channel('seo')->error("Semantics failed: {$tool->tool_slug} — {$e->getMessage()}");
+                }
+
+                $bar->advance();
+                usleep(2500000); // 2.5 second delay between calls to avoid hitting OpenAI/Google rate limits
+            }
+            gc_collect_cycles();
+        });
 
         $bar->finish();
-        $this->newLine(2);
-
-        $this->info("Extraction Complete!");
-        $this->line("<fg=green>Successfully processed:</> {$successCount} tools");
-        if ($failCount > 0) {
-            $this->line("<fg=red>Failed to process:</> {$failCount} tools");
-        }
-
-        return $failCount === 0 ? Command::SUCCESS : Command::FAILURE;
-    }
-
-    /**
-     * Determine which tools to process based on arguments/options.
-     */
-    private function getToolsToProcess(): array
-    {
-        // Load all available tools
-        $allTools = array_merge(config('tools.tools', []), config('pro_calculators', []));
-
-        // Option 1: Specific tool
-        if ($specific = $this->option('tool')) {
-            if (isset($allTools[$specific])) {
-                return [$specific => $allTools[$specific]];
-            }
-            $this->error("Tool slug '{$specific}' not found in config.");
-            return [];
-        }
-
-        // Option 2: Popular tools
-        $limit = (int) $this->option('limit');
-        if ($this->option('popular')) {
-            // Get top tools from DB analytics
-            $topSlugs = ToolAnalytics::orderByDesc('view_count')
-                ->limit($limit)
-                ->pluck('tool_slug')
-                ->toArray();
-
-            $selected = [];
-            foreach ($topSlugs as $slug) {
-                if (isset($allTools[$slug])) {
-                    $selected[$slug] = $allTools[$slug];
-                }
-            }
-            return $selected;
-        }
-
-        // HOTFIX-1.0: limit=0 means ALL tools (no artificial cap)
-        if ($limit > 0) {
-            return array_slice($allTools, 0, $limit, true);
-        }
-
-        return $allTools;
+        $this->newLine();
+        $this->info("✅ Success: {$success} | Failed: {$failed}");
+        return Command::SUCCESS;
     }
 }

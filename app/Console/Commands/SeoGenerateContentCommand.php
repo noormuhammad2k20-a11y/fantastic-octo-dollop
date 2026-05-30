@@ -3,153 +3,138 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Services\Seo\ContentGenerationService;
 use App\Models\ContentDraft;
-use Illuminate\Support\Facades\Cache;
+use App\Services\SEO\ToolContextExtractor;
+use App\Services\SEO\OpenAIContentGenerator;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class SeoGenerateContentCommand extends Command
 {
-    // HOTFIX-1.0: Removed hardcoded limit=5 default. 0 = process all tools.
-    protected $signature = 'seo:generate-content 
-                            {--limit=0 : Number of tools to generate content for (0 = all)}
-                            {--tool= : Process a specific tool slug}
-                            {--force : Overwrite existing drafts}
-                            {--dry-run : Show what would be processed without making changes}
-                            {--category= : Process only tools in this category slug}';
+    // Keeping 'seo:generate-content' name to avoid breaking existing crons
+    protected $signature = 'seo:generate-content
+        {--limit=    : Max tools to process (for testing)}
+        {--tool=     : Process single tool by slug}
+        {--category= : Process only tools in this category}
+        {--dry-run   : Preview without generating}
+        {--force     : Re-generate even if draft exists}
+        {--batch=50  : Chunk size}';
 
-    protected $description = 'Generate SEO content drafts using LLM based on extracted semantics';
+    protected $description = 'Generate unique SEO content for tools using OpenAI';
 
-    public function handle(ContentGenerationService $generator): int
-    {
-        // HOTFIX-1.0: Set memory/time limits for 1400+ tools
-        ini_set('memory_limit', config('seo.content_generation.memory_limit', '512M'));
-        set_time_limit((int) config('seo.content_generation.time_limit', 3600));
-
-        $this->info("Starting Content Draft Generation...");
-        
-        $tools = $this->getToolsToProcess();
-        
-        if (empty($tools)) {
-            $this->error("No tools found to process.");
+    public function handle(
+        ToolContextExtractor $contextExtractor,
+        OpenAIContentGenerator $generator
+    ): int {
+        // Safety check
+        if (empty(config('services.openai.api_key'))) {
+            $this->error('❌ OPENAI_API_KEY not set in .env — aborting');
             return Command::FAILURE;
         }
 
-        $totalTools = count($tools);
+        $batchSize = (int) $this->option('batch');
+        $limit     = $this->option('limit') ? (int) $this->option('limit') : null;
+        ini_set('memory_limit', config('seo.content_generation.memory_limit', '512M'));
+        set_time_limit(0);
 
-        // HOTFIX-1.0: Dry-run mode — show what would run without doing it
-        if ($this->option('dry-run')) {
-            $this->info("DRY RUN MODE — No changes will be made");
-            $this->info("Tools that would be processed: {$totalTools}");
-            $this->newLine();
-            foreach ($tools as $slug => $config) {
-                $name = $config['name'] ?? $slug;
-                $this->line("  Would process: [{$slug}] {$name}");
-            }
+        // Build query — target tools WITHOUT approved/published content (unless --force)
+        $query = DB::table('tool_health_checks as t')
+            ->select('t.tool_slug');
+            
+        // Assuming there is a tool_name column or we extract from config
+        // In this schema, we just need the slug.
+
+        if (!$this->option('force')) {
+            $query->leftJoin('content_drafts as cd', function($join) {
+                $join->on('cd.tool_slug', '=', 't.tool_slug')
+                     ->whereIn('cd.status', ['approved', 'published']);
+            })
+            ->whereNull('cd.id');  // No approved content yet
+        }
+
+        $query->where('t.status', 'ok');
+
+        // Single tool mode
+        if ($slug = $this->option('tool')) {
+            $query->where('t.tool_slug', $slug);
+        }
+
+        // Category filter (simple LIKE based on slug if we don't have category in DB)
+        // Alternatively, we could filter after fetching, but doing it in SQL is faster.
+        if ($cat = $this->option('category')) {
+            $query->where('t.tool_slug', 'LIKE', "%{$cat}%");
+        }
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        $total = $query->count();
+
+        if ($total === 0) {
+            $this->info("No tools found that need content generation.");
             return Command::SUCCESS;
         }
 
-        $bar = $this->output->createProgressBar($totalTools);
+        if ($this->option('dry-run')) {
+            $this->info("DRY RUN: Would process {$total} tools");
+            $query->chunk($batchSize, function($tools) {
+                foreach ($tools as $tool) {
+                    $this->line("  → {$tool->tool_slug}");
+                }
+            });
+            return Command::SUCCESS;
+        }
+
+        $this->info("Processing {$total} tools in batches of {$batchSize}");
+        $bar = $this->output->createProgressBar($total);
         $bar->start();
 
-        $successCount = 0;
-        $failCount = 0;
-        $skippedCount = 0;
+        $processed = 0; $failed = 0;
 
-        // HOTFIX-1.0: Cache progress so admin panel can show real-time status
-        Cache::put('seo:generation_progress', [
-            'started_at'    => now()->toIso8601String(),
-            'total'         => $totalTools,
-            'processed'     => 0,
-            'failed'        => 0,
-            'current_tool'  => null,
-        ], now()->addHours(12));
-
-        $batchSize = (int) config('seo.content_generation.batch_size', 50);
-        $chunks = array_chunk($tools, $batchSize, true);
-
-        foreach ($chunks as $chunk) {
-            foreach ($chunk as $slug => $config) {
-                // Update progress cache
-                Cache::put('seo:generation_progress', array_merge(
-                    Cache::get('seo:generation_progress', []),
-                    ['current_tool' => $slug, 'processed' => $successCount + $skippedCount, 'failed' => $failCount]
-                ), now()->addHours(12));
-
-                // HOTFIX-1.0: Force flag updates existing, does not create duplicates
-                if ($this->option('force')) {
-                    // Force mode: proceed regardless of existing drafts
-                } else {
-                    // Check for existing drafts
-                    $existing = ContentDraft::where('tool_slug', $slug)
-                        ->whereIn('status', ['pending_review', 'published'])
-                        ->exists();
-                        
-                    if ($existing) {
-                        $skippedCount++;
-                        $bar->advance();
-                        continue;
-                    }
-                }
-
+        $query->orderBy('t.id')->chunk($batchSize, function($tools) use (
+            $bar, $contextExtractor, $generator, &$processed, &$failed
+        ) {
+            foreach ($tools as $tool) {
                 try {
-                    $draft = $generator->generateDraftForTool($slug, $config);
-                    if ($draft) {
-                        $successCount++;
-                    } else {
-                        $failCount++;
-                    }
+                    // Extract tool-specific context from slug
+                    $context = $contextExtractor->extract($tool->tool_slug);
+
+                    // Generate unique content using context
+                    $content = $generator->generateForTool($context);
+
+                    // Save (updateOrCreate prevents duplicates)
+                    ContentDraft::updateOrCreate(
+                        ['tool_slug' => $tool->tool_slug],
+                        [
+                            'draft_type'             => 'full_article',
+                            'status'                 => 'pending_review',
+                            'draft_content'          => $content['html'],
+                            'outline_json'           => $content['outline'],
+                            'ai_model_used'          => $content['model'],
+                            'generation_prompt_hash' => md5($content['prompt_used']),
+                            'word_count'             => $content['word_count'],
+                            'seo_score'              => $content['seo_score'] ?? null,
+                            'language'               => 'en',
+                        ]
+                    );
+
+                    Log::channel('seo')->info("Content generated: {$tool->tool_slug}");
+                    $processed++;
+
                 } catch (\Exception $e) {
-                    $failCount++;
-                    $this->error(" Error on {$slug}: " . $e->getMessage());
+                    Log::channel('seo')->error("Failed: {$tool->tool_slug} — {$e->getMessage()}");
+                    $failed++;
                 }
 
                 $bar->advance();
             }
-
-            // HOTFIX-1.0: Allow garbage collection between chunks
             gc_collect_cycles();
-        }
+        });
 
         $bar->finish();
-        $this->newLine(2);
-
-        // HOTFIX-1.0: Store last run timestamp
-        Cache::put('seo:last_content_generation_run', now()->toIso8601String(), now()->addDays(30));
-
-        $this->info("Content Generation Complete!");
-        $this->line("<fg=green>Generated:</> {$successCount}");
-        $this->line("<fg=yellow>Skipped (Existing):</> {$skippedCount}");
-        if ($failCount > 0) {
-            $this->line("<fg=red>Failed:</> {$failCount}");
-        }
-        $this->line("<fg=cyan>Total tools found:</> {$totalTools}");
-
-        return $failCount === 0 ? Command::SUCCESS : Command::FAILURE;
-    }
-
-    private function getToolsToProcess(): array
-    {
-        $allTools = array_merge(config('tools.tools', []), config('pro_calculators', []));
-        
-        // HOTFIX-1.0: Filter by specific tool slug
-        if ($specific = $this->option('tool')) {
-            return isset($allTools[$specific]) ? [$specific => $allTools[$specific]] : [];
-        }
-
-        // HOTFIX-1.0: Filter by category
-        if ($category = $this->option('category')) {
-            $allTools = array_filter($allTools, function ($config) use ($category) {
-                return ($config['category'] ?? '') === $category;
-            });
-        }
-        
-        // HOTFIX-1.0: limit=0 means ALL tools (no artificial cap)
-        $limit = (int) $this->option('limit');
-        if ($limit > 0) {
-            return array_slice($allTools, 0, $limit, true);
-        }
-
-        return $allTools;
+        $this->newLine();
+        $this->info("✅ Done. Processed: {$processed} | Failed: {$failed}");
+        return Command::SUCCESS;
     }
 }
-

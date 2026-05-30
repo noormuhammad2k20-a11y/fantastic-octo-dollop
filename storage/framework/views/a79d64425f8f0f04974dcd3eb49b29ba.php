@@ -150,21 +150,7 @@
 
                 
                 <?php if(!View::hasSection('seo_content')): ?>
-                    <?php
-                        $publishedDraft = \App\Models\ContentDraft::where('tool_slug', $slug)
-                            ->where('status', 'published')
-                            ->first();
-                    ?>
-
-                    <?php if($publishedDraft): ?>
-                        <section class="seo-section professional-seo-content">
-                            
-                            <?php echo $publishedDraft->draft_content; ?>
-
-                        </section>
-                    <?php else: ?>
-                        <?php echo $__env->make('tools.partials.seo_content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-                    <?php endif; ?>
+                    <?php echo $__env->make('partials.tool-seo-content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                 <?php endif; ?>
 
 
@@ -281,58 +267,7 @@
                 <?php echo $__env->yieldContent('related_tools'); ?>
                 
                 
-                <?php if(!View::hasSection('related_tools')): ?>
-                <section class="seo-section related-tools-section" style="padding-top: 0;">
-                    <div class="category-header">
-                    
-                        <div>
-                            <h2>Related Tools</h2>
-                        </div>
-                    </div>
-
-                    <div class="row g-3">
-                        <?php
-                        // Inject slug into the array to preserve it after shuffle() which loses keys
-                        $toolsWithSlugs = collect($tools)->map(function($item, $key) {
-                            $item['slug'] = $key;
-                            return $item;
-                        });
-                        // Step 1: Same-category tools
-                        $related = $toolsWithSlugs->where('category', $tool['category'] ?? 'General')->except($slug)->shuffle()->take(12);
-
-                        // Step 2: Keyword fallback if same-category < 12
-                        if ($related->count() < 12) {
-                            $keywords = array_filter(explode('-', $slug), fn($w) => !in_array($w, ['to','from','and','of','a','the','in','for']));
-                            $keywordMatch = $toolsWithSlugs
-                                ->whereNotIn('slug', $related->pluck('slug')->push($slug)->toArray())
-                                ->filter(function ($t) use ($keywords) {
-                                    foreach ($keywords as $kw) {
-                                        if (strlen($kw) >= 3 && str_contains($t['slug'], $kw)) return true;
-                                    }
-                                    return false;
-                                })
-                                ->shuffle()
-                                ->take(12 - $related->count());
-                            $related = $related->merge($keywordMatch);
-                        }
-                    ?>
-                        <?php $__currentLoopData = $related; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $relTool): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-                                <a href="<?php echo e(url('/' . $relTool['slug'])); ?>" class="tool-card h-100">
-                                    <div class="tool-icon">
-                                        <i class="<?php echo e($relTool['icon'] ?? 'fas fa-tools'); ?>"></i>
-                                    </div>
-                                    <div class="tool-body">
-                                        <h3 class="tool-name"><?php echo e($relTool['h1'] ?? $relTool['title'] ?? 'Tool'); ?></h3>
-                                        <p class="tool-desc"><?php echo e($relTool['description'] ?? $relTool['subtitle'] ?? ''); ?></p>
-                                    </div>
-                                    <span class="tool-arrow">Use tool <i class="fas fa-arrow-right"></i></span>
-                                </a>
-                            </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </div>
-                </section>
-                <?php endif; ?>
+                
 
                 
                 <?php echo $__env->make('partials.semantic-links', ['toolSlug' => $slug], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
