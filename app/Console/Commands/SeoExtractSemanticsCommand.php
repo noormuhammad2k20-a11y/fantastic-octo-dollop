@@ -13,11 +13,21 @@ class SeoExtractSemanticsCommand extends Command
         {--limit=   : Max tools}
         {--tool=    : Single tool slug}
         {--dry-run  : Preview only}
-        {--force    : Re-extract even if data exists}';
+        {--force    : Re-extract even if data exists}
+        {--batch=25 : Chunk size for processing}';
+
+    protected $description = 'Extract semantic keywords (autocomplete + AI) for tools';
 
     public function handle(SemanticExtractorService $extractor): int
     {
-        $limit   = $this->option('limit') ? (int) $this->option('limit') : null;
+        // SAFETY: Verify GEMINI_API_KEY is set before starting
+        if (empty(config('services.gemini.api_key'))) {
+            $this->error('❌ GEMINI_API_KEY not set in .env — aborting');
+            return Command::FAILURE;
+        }
+
+        $limit     = $this->option('limit') ? (int) $this->option('limit') : null;
+        $batchSize = (int) $this->option('batch');
         ini_set('memory_limit', '256M');
 
         $query = DB::table('tool_health_checks as t')
@@ -49,13 +59,13 @@ class SeoExtractSemanticsCommand extends Command
             return Command::SUCCESS;
         }
 
-        $this->info("Extracting semantics for {$total} tools...");
+        $this->info("Extracting semantics for {$total} tools (batch size: {$batchSize})...");
         $bar = $this->output->createProgressBar($total);
         $bar->start();
 
         $success = 0; $failed = 0;
 
-        $query->orderBy('t.id')->chunk(25, function($tools) use (
+        $query->orderBy('t.id')->chunk($batchSize, function($tools) use (
             $extractor, $bar, &$success, &$failed
         ) {
             foreach ($tools as $tool) {
@@ -103,6 +113,11 @@ class SeoExtractSemanticsCommand extends Command
         $bar->finish();
         $this->newLine();
         $this->info("✅ Success: {$success} | Failed: {$failed}");
+
+        if ($failed > 0) {
+            $this->warn("⚠ {$failed} tools failed — check storage/logs/seo.log for details.");
+        }
+
         return Command::SUCCESS;
     }
 }

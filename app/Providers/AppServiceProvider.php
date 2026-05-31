@@ -11,7 +11,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(\App\Services\SEO\GeminiService::class);
+        $this->app->singleton(\App\Services\SEO\GeminiContentGenerator::class);
     }
 
     public function boot(): void
@@ -21,10 +22,10 @@ class AppServiceProvider extends ServiceProvider
         }
         \Illuminate\Support\Facades\View::composer('layouts.app', \App\View\Composers\FooterComposer::class);
 
-        // HOTFIX-1.0: Warn loudly if OpenAI key is missing in production
-        if (app()->environment('production') && empty(config('services.openai.api_key'))) {
+        // HOTFIX-1.0: Warn loudly if Gemini key is missing in production
+        if (app()->environment('production') && empty(config('services.gemini.api_key'))) {
             \Illuminate\Support\Facades\Log::critical(
-                'OPENAI_API_KEY is not configured. SEO content generation will use mock fallback. Set it in .env'
+                'GEMINI_API_KEY is not configured. SEO content generation will use mock fallback. Set it in .env'
             );
         }
     }

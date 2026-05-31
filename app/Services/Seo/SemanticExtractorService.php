@@ -9,14 +9,9 @@ use Illuminate\Support\Collection;
 
 class SemanticExtractorService
 {
-    private string $openAiKey;
-    private string $model;
-
-    public function __construct()
-    {
-        $this->openAiKey = config('services.openai.api_key', '');
-        $this->model = config('services.openai.model', 'gpt-4o-mini');
-    }
+    public function __construct(
+        private GeminiService $gemini
+    ) {}
 
     public function extractForTool(string $slug): Collection
     {
@@ -40,16 +35,24 @@ class SemanticExtractorService
             }
             sleep(2); // Rate limit
 
-            // 2. AI-Generated Semantics (OpenAI — most reliable)
-            if (!empty($this->openAiKey)) {
-                $aiKeywords = $this->generateAISemantics($toolName, $slug);
-                foreach ($aiKeywords as $kw) {
-                    $keywords->push($kw);
-                }
-                sleep(3); // Rate limit
-            } else {
-                Log::channel('seo')->warning("Skipping OpenAI semantics for {$slug} because OPENAI_API_KEY is not set.");
+            // 2. AI-Generated Semantics (Gemini — most reliable)
+            // FIXED: Fail hard if GEMINI_API_KEY is not configured
+            if (!$this->gemini->isConfigured()) {
+                throw new \RuntimeException('GEMINI_API_KEY not configured — cannot extract AI semantics');
             }
+
+            $aiKeywords = $this->generateAISemantics($toolName, $slug);
+
+            // Validate we actually got AI keywords (not just empty array)
+            $aiCount = count(array_filter($aiKeywords, fn($k) => $k['source'] === 'gemini'));
+            if ($aiCount === 0) {
+                throw new \RuntimeException("Gemini returned 0 keywords for {$slug} — API call likely failed");
+            }
+
+            foreach ($aiKeywords as $kw) {
+                $keywords->push($kw);
+            }
+            sleep(3); // Rate limit
 
             return $keywords;
         });
@@ -81,78 +84,114 @@ class SemanticExtractorService
     private function generateAISemantics(string $toolName, string $slug): array
     {
         $prompt = <<<PROMPT
-For the tool "{$toolName}" (URL: /{$slug}), generate semantic SEO data.
+For the tool "{$toolName}" (URL slug: {$slug}), generate semantic SEO keyword data.
 
-Return ONLY valid JSON in this exact format:
+Return ONLY a valid JSON object. No explanation, no markdown, no code fences.
+Start your response with { and end with }
+
+Required JSON structure:
 {
-  "lsi_keywords": ["term1", "term2", "term3", "term4", "term5"],
-  "paa_questions": [
-    "How do I calculate [specific thing]?",
-    "What is the formula for [specific thing]?",
-    "What is a good [metric] for [specific thing]?",
-    "How accurate is [tool name]?",
-    "Can I use [tool name] for [specific use case]?"
+  "lsi_keywords": [
+    "semantically related term 1",
+    "semantically related term 2",
+    "semantically related term 3",
+    "semantically related term 4",
+    "semantically related term 5"
   ],
-  "semantic_entities": ["Entity1", "Entity2", "Entity3"],
+  "paa_questions": [
+    "How do I use {$toolName}?",
+    "What is the formula for [specific concept in this tool]?",
+    "What is a good [metric] when using {$toolName}?",
+    "When should I use {$toolName}?",
+    "What are the limitations of {$toolName}?"
+  ],
+  "semantic_entities": [
+    "Primary concept name",
+    "Related technical term",
+    "Industry or domain name"
+  ],
   "search_intent": "informational",
-  "related_searches": ["term1", "term2", "term3"]
+  "related_searches": [
+    "related search 1",
+    "related search 2",
+    "related search 3"
+  ]
 }
 
 Rules:
-- All questions must be SPECIFIC to this tool
+- All questions must be SPECIFIC to "{$toolName}" — not generic
 - LSI keywords must be semantically related, not just synonyms
-- Return ONLY the JSON, no other text
+- search_intent must be one of: informational, transactional, navigational, commercial
+- Return ONLY the JSON object — nothing before or after it
 PROMPT;
 
         try {
-            $response = Http::withToken($this->openAiKey)
-                ->timeout(60)
-                ->post('https://api.openai.com/v1/chat/completions', [
-                    'model' => $this->model,
-                    'messages' => [
-                        ['role' => 'user', 'content' => $prompt]
-                    ],
-                    'temperature' => 0.3,
-                ]);
+            $data = $this->gemini->generateJson($prompt);
+            $this->gemini->respectRateLimit();
 
-            if (!$response->successful()) {
-                Log::channel('seo')->error("AI semantics failed for {$slug}: HTTP {$response->status()} - {$response->body()}");
-                return [];
-            }
-
-            $json = trim($response->json('choices.0.message.content'));
-            $json = preg_replace('/```json|```/', '', $json);
-            $data = json_decode($json, true);
-
-            if (!$data) {
-                Log::channel('seo')->error("AI semantics failed for {$slug}: Could not parse JSON response.");
-                return [];
+            if (empty($data)) {
+                throw new \RuntimeException('Gemini returned empty JSON for ' . $slug);
             }
 
             $keywords = [];
 
             foreach ($data['lsi_keywords'] ?? [] as $term) {
-                $keywords[] = ['keyword' => $term, 'type' => 'lsi', 'source' => 'openai',
-                               'intent' => 'informational', 'confidence' => 0.85];
+                if (!empty(trim($term))) {
+                    $keywords[] = [
+                        'keyword'    => trim($term),
+                        'type'       => 'lsi',
+                        'source'     => 'gemini',
+                        'intent'     => 'informational',
+                        'confidence' => 0.85,
+                    ];
+                }
             }
+
             foreach ($data['paa_questions'] ?? [] as $q) {
-                $keywords[] = ['keyword' => $q, 'type' => 'paa', 'source' => 'openai',
-                               'intent' => 'informational', 'confidence' => 0.88];
+                if (!empty(trim($q))) {
+                    $keywords[] = [
+                        'keyword'    => trim($q),
+                        'type'       => 'paa',
+                        'source'     => 'gemini',
+                        'intent'     => 'informational',
+                        'confidence' => 0.88,
+                    ];
+                }
             }
+
             foreach ($data['semantic_entities'] ?? [] as $e) {
-                $keywords[] = ['keyword' => $e, 'type' => 'entity', 'source' => 'openai',
-                               'intent' => $data['search_intent'] ?? 'informational', 'confidence' => 0.90];
+                if (!empty(trim($e))) {
+                    $keywords[] = [
+                        'keyword'    => trim($e),
+                        'type'       => 'entity',
+                        'source'     => 'gemini',
+                        'intent'     => $data['search_intent'] ?? 'informational',
+                        'confidence' => 0.90,
+                    ];
+                }
             }
+
             foreach ($data['related_searches'] ?? [] as $r) {
-                $keywords[] = ['keyword' => $r, 'type' => 'semantic', 'source' => 'openai',
-                               'intent' => 'informational', 'confidence' => 0.80];
+                if (!empty(trim($r))) {
+                    $keywords[] = [
+                        'keyword'    => trim($r),
+                        'type'       => 'semantic',
+                        'source'     => 'gemini',
+                        'intent'     => 'informational',
+                        'confidence' => 0.80,
+                    ];
+                }
+            }
+
+            if (count($keywords) === 0) {
+                throw new \RuntimeException('Gemini returned 0 valid keywords for ' . $slug);
             }
 
             return $keywords;
 
         } catch (\Exception $e) {
-            Log::channel('seo')->error("AI semantics failed for {$slug}: {$e->getMessage()}");
-            return [];
+            Log::channel('seo')->error("Gemini semantics failed for {$slug}: {$e->getMessage()}");
+            throw $e; // Re-throw — do not silently fail
         }
     }
 }

@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\ContentDraft;
 use App\Services\SEO\ToolContextExtractor;
-use App\Services\SEO\OpenAIContentGenerator;
+use App\Services\SEO\GeminiContentGenerator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -24,11 +24,12 @@ class SeoGenerateContentCommand extends Command
 
     public function handle(
         ToolContextExtractor $contextExtractor,
-        OpenAIContentGenerator $generator
+        GeminiContentGenerator $generator
     ): int {
         // Safety check
-        if (empty(config('services.openai.api_key'))) {
-            $this->error('❌ OPENAI_API_KEY not set in .env — aborting');
+        if (empty(config('services.gemini.api_key'))) {
+            $this->error('❌ GEMINI_API_KEY not set in .env — aborting');
+            $this->error('   Add GEMINI_API_KEY=your-key to .env then run: php artisan config:clear');
             return Command::FAILURE;
         }
 

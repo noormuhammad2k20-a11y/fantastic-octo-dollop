@@ -35,10 +35,21 @@ return [
         ],
     ],
 
-    // HOTFIX-1.0: OpenAI API configuration for SEO content generation
-    'openai' => [
-        'api_key' => env('OPENAI_API_KEY', ''),
-        'model'   => env('OPENAI_CONTENT_MODEL', 'gpt-4o'),
+    // DEPRECATED: OpenAI API configuration (replaced by Gemini)
+    // 'openai' => [
+    //     'api_key'    => env('OPENAI_API_KEY', ''),
+    //     'model'      => env('OPENAI_CONTENT_MODEL', 'gpt-4o'),
+    //     'max_tokens' => (int) env('OPENAI_MAX_TOKENS', 2000),
+    //     'rpm_limit'  => (int) env('OPENAI_RPM_LIMIT', 20),
+    // ],
+
+    // Gemini API configuration for SEO content generation
+    'gemini' => [
+        'api_key'    => env('GEMINI_API_KEY'),
+        'model'      => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+        'max_tokens' => (int) env('GEMINI_MAX_TOKENS', 4000),
+        'rpm_limit'  => (int) env('GEMINI_RPM_LIMIT', 15),
+        'endpoint'   => 'https://generativelanguage.googleapis.com/v1beta/models',
     ],
 
 ];
