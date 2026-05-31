@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\SEO;
+namespace App\Services\Seo;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -124,34 +124,37 @@ class GeminiService
         throw new \RuntimeException("Gemini failed after {$maxRetries} retries");
     }
 
-    /**
-     * Generate JSON response from Gemini (parses and validates JSON)
-     *
-     * @throws \RuntimeException if response is not valid JSON
-     */
     public function generateJson(string $prompt): array
     {
-        $text = $this->generateText($prompt, temperature: 0.3);
+        $text = $this->generateText($prompt, temperature: 0.2);
 
-        // Remove markdown code fences if present
-        $text = preg_replace('/```json\s*/i', '', $text);
-        $text = preg_replace('/```\s*/', '', $text);
+        // Remove all markdown artifacts
+        $text = preg_replace('/^```[a-z]*\s*/im', '', $text);
+        $text = preg_replace('/```\s*$/im', '', $text);
         $text = trim($text);
 
-        // Find JSON object or array
-        if (!str_starts_with($text, '{') && !str_starts_with($text, '[')) {
-            // Try to extract JSON from response
-            preg_match('/(\{.*\}|\[.*\])/s', $text, $matches);
-            $text = $matches[1] ?? $text;
+        // Try to isolate JSON object
+        $firstBrace = strpos($text, '{');
+        $lastBrace  = strrpos($text, '}');
+
+        if ($firstBrace !== false && $lastBrace !== false) {
+            $text = substr($text, $firstBrace, $lastBrace - $firstBrace + 1);
         }
 
         $data = json_decode($text, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
+            Log::channel('seo')->error(
+                'Gemini JSON parse failed: ' . json_last_error_msg() .
+                ' | Raw response: ' . substr($text, 0, 500)
+            );
             throw new \RuntimeException(
                 'Gemini returned invalid JSON: ' . json_last_error_msg()
-                . ' | Response: ' . substr($text, 0, 200)
             );
+        }
+
+        if (empty($data)) {
+            throw new \RuntimeException('Gemini returned empty JSON object');
         }
 
         return $data;

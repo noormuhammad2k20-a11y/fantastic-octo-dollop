@@ -11,8 +11,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(\App\Services\SEO\GeminiService::class);
-        $this->app->singleton(\App\Services\SEO\GeminiContentGenerator::class);
+        $this->app->singleton(\App\Services\Seo\GeminiService::class);
+        $this->app->singleton(\App\Services\Seo\GeminiContentGenerator::class);
     }
 
     public function boot(): void

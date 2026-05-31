@@ -459,5 +459,6 @@ Route::group([], $coreRoutes);
 
 // ─── SEO AUTOMATION ADMIN ROUTES ────────────────────────────────
 Route::prefix('admin/seo')->name('admin.')->group(function () {
+    Route::post('content-drafts/bulk-approve', [\App\Http\Controllers\Admin\ContentDraftController::class, 'bulkApprove'])->name('content-drafts.bulk-approve');
     Route::resource('content-drafts', \App\Http\Controllers\Admin\ContentDraftController::class)->only(['index', 'edit', 'update']);
 });

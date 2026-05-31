@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\ContentDraft;
-use App\Services\SEO\ToolContextExtractor;
-use App\Services\SEO\GeminiContentGenerator;
+use App\Services\Seo\ToolContextExtractor;
+use App\Services\Seo\GeminiContentGenerator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 

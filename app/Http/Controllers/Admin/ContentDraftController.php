@@ -9,47 +9,81 @@ use Illuminate\Http\Request;
 class ContentDraftController extends Controller
 {
     /**
-     * Display a listing of the content drafts.
+     * Display a listing of the content drafts with status tabs.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $drafts = ContentDraft::orderByRaw("FIELD(status, 'pending_review', 'published', 'rejected')")
-            ->orderByDesc('updated_at')
-            ->paginate(20);
+        $status = $request->get('status', 'pending_review');
 
-        return view('admin.content-drafts.index', compact('drafts'));
+        $drafts = ContentDraft::where('status', $status)
+            ->orderByDesc('seo_score')
+            ->orderByDesc('word_count')
+            ->paginate(30);
+
+        $counts = [
+            'pending_review' => ContentDraft::where('status', 'pending_review')->count(),
+            'approved'       => ContentDraft::where('status', 'approved')->count(),
+            'rejected'       => ContentDraft::where('status', 'rejected')->count(),
+        ];
+
+        return view('admin.content-drafts.index', compact('drafts', 'counts', 'status'));
     }
 
     /**
      * Show the form for editing/reviewing the specified draft.
      */
-    public function edit(ContentDraft $draft)
+    public function edit(ContentDraft $contentDraft)
     {
+        $draft = $contentDraft;
         $toolConfig = array_merge(config('tools.tools', []), config('pro_calculators', []))[$draft->tool_slug] ?? null;
-        
+
         return view('admin.content-drafts.edit', compact('draft', 'toolConfig'));
     }
 
     /**
      * Update the specified draft in storage.
      */
-    public function update(Request $request, ContentDraft $draft)
+    public function update(Request $request, ContentDraft $contentDraft)
     {
-        // HOTFIX-1.0: Use correct DB column name 'draft_content' not 'generated_content'
         $validated = $request->validate([
-            'draft_content' => 'required|string',
-            'status' => 'required|in:pending_review,approved,published,rejected',
+            'status'        => 'required|in:pending_review,approved,rejected',
+            'draft_content' => 'nullable|string',
         ]);
 
-        $validated['published_at'] = $validated['status'] === 'published' ? now() : null;
-        // HOTFIX-1.0: Track reviewer timestamp
-        if (in_array($validated['status'], ['approved', 'published', 'rejected'])) {
-            $validated['reviewed_at'] = now();
-        }
+        $contentDraft->update([
+            'status'        => $validated['status'],
+            'draft_content' => $validated['draft_content'] ?? $contentDraft->draft_content,
+            'reviewed_by'   => auth()->id(),
+            'reviewed_at'   => now(),
+            'published_at'  => $validated['status'] === 'approved' ? now() : null,
+        ]);
 
-        $draft->update($validated);
+        return redirect()
+            ->route('admin.content-drafts.index')
+            ->with('success', "Draft {$validated['status']} for {$contentDraft->tool_slug}");
+    }
 
-        return redirect()->route('admin.content-drafts.index')
-            ->with('success', "Draft for {$draft->tool_slug} updated successfully.");
+    /**
+     * Bulk approve all drafts with seo_score >= threshold
+     * Use with caution — review first!
+     */
+    public function bulkApprove(Request $request)
+    {
+        $minScore = (int) $request->get('min_score', 70);
+        $minWords = (int) $request->get('min_words', 700);
+
+        $count = ContentDraft::where('status', 'pending_review')
+            ->where('seo_score', '>=', $minScore)
+            ->where('word_count', '>=', $minWords)
+            ->whereNotNull('draft_content')
+            ->update([
+                'status'      => 'approved',
+                'reviewed_at' => now(),
+                'published_at'=> now(),
+            ]);
+
+        return redirect()
+            ->route('admin.content-drafts.index', ['status' => 'approved'])
+            ->with('success', "Bulk approved {$count} drafts (score >= {$minScore}, words >= {$minWords})");
     }
 }

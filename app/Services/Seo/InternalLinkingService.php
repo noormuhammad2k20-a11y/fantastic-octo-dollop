@@ -128,40 +128,53 @@ class InternalLinkingService
      */
     public function generateAnchors(string $source, string $target): array
     {
-        $targetName = ucwords(str_replace('-', ' ', $target));
-        $targetParts = explode('-', $target);
+        $targetParts  = explode('-', $target);
+        $targetName   = ucwords(str_replace('-', ' ', $target)); // e.g. "Era Calculator"
 
-        // Generate descriptive, non-generic anchor text
+        // Detect acronyms that should stay uppercase
+        $acronyms = ['era', 'fip', 'ops', 'war', 'whip', 'roi', 'bmi', 'cagr', 'vat',
+                     'apr', 'apy', 'rpm', 'url', 'html', 'css', 'json', 'jwt', 'md5',
+                     'sha', 'sql', 'xml', 'api', 'isbn', 'isin', 'gpa', 'gre', 'sat'];
+
         $isCalculator = in_array('calculator', $targetParts);
-        $isConverter  = in_array('converter', $targetParts);
-        $isGenerator  = in_array('generator', $targetParts);
+        $isConverter  = in_array('converter',  $targetParts);
+        $isGenerator  = in_array('generator',  $targetParts);
 
-        $concept = implode(' ', array_filter($targetParts, fn($p) =>
-            !in_array($p, ['calculator', 'converter', 'generator', 'checker', 'pro', 'online'])
-        ));
-        $conceptName = ucwords($concept);
+        $stopWords = ['calculator','converter','generator','checker','tester',
+                      'formatter','encoder','decoder','pro','advanced','online',
+                      'free','tool','per','and','to','from','of','the','a'];
 
-        $anchors = match(true) {
+        $conceptParts = array_filter($targetParts, fn($p) => !in_array($p, $stopWords));
+
+        // Convert concept words — uppercase acronyms, ucfirst others
+        $conceptWords = array_map(function($word) use ($acronyms) {
+            return in_array($word, $acronyms) ? strtoupper($word) : ucfirst($word);
+        }, array_values($conceptParts));
+
+        $concept = implode(' ', $conceptWords);
+
+        // Build anchors
+        $anchors = match (true) {
             $isCalculator => [
-                "calculate {$conceptName}",
-                "{$conceptName} calculation tool",
-                "use our {$targetName}",
+                "calculate {$concept}",
+                "{$concept} Calculator",
+                "use the {$targetName}",
             ],
-            $isConverter => [
-                "convert {$conceptName}",
-                "{$conceptName} conversion",
-                "{$targetName} tool",
+            $isConverter  => [
+                "convert {$concept}",
+                "{$concept} Converter",
+                "{$targetName} Tool",
             ],
-            $isGenerator => [
-                "generate {$conceptName}",
-                "{$conceptName} generator tool",
-                "create {$conceptName} online",
+            $isGenerator  => [
+                "generate {$concept}",
+                "{$concept} Generator",
+                "create {$concept} online",
             ],
-            default => [
+            default       => [
                 $targetName,
                 "use {$targetName}",
-                "{$conceptName} tool",
-            ]
+                "{$concept} Tool",
+            ],
         };
 
         return array_map('trim', $anchors);

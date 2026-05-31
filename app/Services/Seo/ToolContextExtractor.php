@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\SEO;
+namespace App\Services\Seo;
 
 /**
  * ToolContextExtractor — The key to unique content.
@@ -88,6 +88,69 @@ class ToolContextExtractor
             'related_terms' => ['principal', 'interest rate', 'loan term', 'EMI', 'amortization'],
             'user_types'    => ['borrowers', 'financial advisors', 'students', 'homeowners'],
             'formula'       => 'EMI = P × r × (1+r)^n / ((1+r)^n - 1)',
+        ],
+        'ops-calculator' => [
+            'category'      => 'Sports & Baseball Statistics',
+            'primary_use'   => 'calculate OPS (On-base Plus Slugging) for baseball players and teams',
+            'related_terms' => ['on-base percentage', 'slugging percentage', 'batting average', 'baseball stats', 'OBP', 'SLG'],
+            'user_types'    => ['baseball fans', 'fantasy baseball players', 'coaches', 'sports analysts'],
+            'formula'       => 'OPS = OBP + SLG (On-Base Percentage + Slugging Percentage)',
+        ],
+        'era-calculator' => [
+            'category'      => 'Sports & Baseball Statistics',
+            'primary_use'   => 'calculate ERA (Earned Run Average) for baseball pitchers',
+            'related_terms' => ['earned runs', 'innings pitched', 'pitcher performance', 'WHIP', 'FIP', 'baseball'],
+            'user_types'    => ['baseball fans', 'fantasy baseball managers', 'coaches', 'sports analysts'],
+            'formula'       => 'ERA = (Earned Runs / Innings Pitched) × 9',
+        ],
+        'fip-calculator' => [
+            'category'      => 'Sports & Baseball Statistics',
+            'primary_use'   => 'calculate FIP (Fielding Independent Pitching) to measure pitcher skill',
+            'related_terms' => ['strikeouts', 'home runs', 'walks', 'hit by pitch', 'ERA', 'baseball analytics'],
+            'user_types'    => ['sabermetrics fans', 'fantasy baseball players', 'baseball analysts', 'coaches'],
+            'formula'       => 'FIP = ((13×HR + 3×(BB+HBP) - 2×K) / IP) + FIP Constant',
+        ],
+        'war-calculator' => [
+            'category'      => 'Sports & Baseball Statistics',
+            'primary_use'   => 'calculate WAR (Wins Above Replacement) for baseball player valuation',
+            'related_terms' => ['replacement level', 'player value', 'offensive WAR', 'defensive WAR', 'baseball salary'],
+            'user_types'    => ['baseball analysts', 'fantasy baseball players', 'GMs', 'sabermetrics enthusiasts'],
+            'formula'       => 'WAR = (Batting Runs + Baserunning Runs + Fielding Runs + Positional Adjustment + League Adjustment + Replacement Runs) / Runs Per Win',
+        ],
+        'whip-calculator' => [
+            'category'      => 'Sports & Baseball Statistics',
+            'primary_use'   => 'calculate WHIP (Walks plus Hits per Inning Pitched) for pitchers',
+            'related_terms' => ['walks', 'hits allowed', 'innings pitched', 'pitcher efficiency', 'ERA', 'FIP'],
+            'user_types'    => ['baseball fans', 'fantasy baseball players', 'coaches', 'sports analysts'],
+            'formula'       => 'WHIP = (Walks + Hits) / Innings Pitched',
+        ],
+        'at-bats-per-home-run-calculator' => [
+            'category'      => 'Sports & Baseball Statistics',
+            'primary_use'   => 'calculate at-bats per home run ratio for baseball batters',
+            'related_terms' => ['home run rate', 'power hitting', 'slugging', 'HR/AB', 'baseball batting stats'],
+            'user_types'    => ['baseball fans', 'fantasy baseball players', 'coaches', 'scouts'],
+            'formula'       => 'AB/HR = Total At-Bats / Total Home Runs',
+        ],
+        'bowling-score-calculator' => [
+            'category'      => 'Sports & Bowling',
+            'primary_use'   => 'calculate bowling scores including strikes, spares, and open frames',
+            'related_terms' => ['strike', 'spare', 'open frame', 'perfect game', 'bowling average', 'pin count'],
+            'user_types'    => ['bowlers', 'bowling league members', 'coaches', 'recreational players'],
+            'formula'       => 'Strike = 10 + next 2 balls | Spare = 10 + next ball | Open = pins knocked down',
+        ],
+        'rebound-rate-calculator' => [
+            'category'      => 'Sports & Basketball Statistics',
+            'primary_use'   => 'calculate rebound rate percentage for basketball players',
+            'related_terms' => ['offensive rebound', 'defensive rebound', 'total rebound', 'basketball stats', 'PER'],
+            'user_types'    => ['basketball fans', 'fantasy basketball players', 'coaches', 'analysts'],
+            'formula'       => 'Rebound Rate = 100 × (Rebounds × Team Minutes) / (Minutes × (Team Rebounds + Opponent Rebounds))',
+        ],
+        'usage-rate-calculator' => [
+            'category'      => 'Sports & Basketball Statistics',
+            'primary_use'   => 'calculate usage rate to measure how often a basketball player is involved in plays',
+            'related_terms' => ['ball possession', 'player involvement', 'field goal attempts', 'turnovers', 'NBA stats'],
+            'user_types'    => ['basketball analysts', 'fantasy basketball players', 'coaches', 'scouts'],
+            'formula'       => 'Usage Rate = 100 × ((FGA + 0.44×FTA + TOV) × Team Minutes) / (Minutes × (Team FGA + 0.44×Team FTA + Team TOV))',
         ],
         // Add more top tools here for best content quality
     ];
