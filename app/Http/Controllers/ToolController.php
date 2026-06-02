@@ -83,15 +83,20 @@ class ToolController extends Controller
                 ])
                 ->get();
 
-            // Load PAA questions for this tool
-            $paaQuestions = \Illuminate\Support\Facades\DB::table('semantic_keywords')
+            // Load all keywords for this tool
+            $allKeywords = \Illuminate\Support\Facades\DB::table('semantic_keywords')
                 ->where('tool_slug', $tool['slug'])
-                ->where('keyword_type', 'paa')
                 ->where('is_active', 1)
-                ->pluck('keyword');
+                ->orderByDesc('confidence_score')
+                ->get(['keyword_type', 'keyword'])
+                ->groupBy('keyword_type');
 
+            $paaQuestions   = $allKeywords->get('paa',       collect())->pluck('keyword')->take(7);
+            $relatedTerms   = $allKeywords->get('related',   collect())->pluck('keyword')->take(8);
+            $longTailTerms  = $allKeywords->get('long_tail', collect())->pluck('keyword')->take(6);
+            $entityTerms    = $allKeywords->get('entity',    collect())->pluck('keyword')->take(5);
 
-            return view('tools.tool', compact('tool', 'slug', 'tools', 'schemaMarkup', 'seoDraft', 'relatedTools', 'paaQuestions'));
+            return view('tools.tool', compact('tool', 'slug', 'tools', 'schemaMarkup', 'seoDraft', 'relatedTools', 'paaQuestions', 'relatedTerms', 'longTailTerms', 'entityTerms'));
 
 
         }

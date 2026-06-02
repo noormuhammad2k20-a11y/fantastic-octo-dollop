@@ -29,6 +29,14 @@ class GeminiService
     }
 
     /**
+     * Override max tokens for longer content generation
+     */
+    public function setMaxTokens(int $tokens): void
+    {
+        $this->maxTokens = $tokens;
+    }
+
+    /**
      * Send a prompt to Gemini and get text response
      *
      * @throws \RuntimeException if key missing or API fails
@@ -40,6 +48,8 @@ class GeminiService
                 'GEMINI_API_KEY not set in .env. Add it then run: php artisan config:clear'
             );
         }
+
+        $fullPrompt = "SYSTEM: You are a precise SEO expert. Follow all definitions exactly as given. Return only what is explicitly requested.\n\nUSER: " . $prompt;
 
         $url = config('services.gemini.endpoint')
              . "/{$this->model}:generateContent"
@@ -55,7 +65,7 @@ class GeminiService
                         'contents' => [
                             [
                                 'parts' => [
-                                    ['text' => $prompt]
+                                    ['text' => $fullPrompt]
                                 ]
                             ]
                         ],
@@ -77,12 +87,12 @@ class GeminiService
 
                 if ($response->status() === 429) {
                     // Rate limited — wait and retry
-                    $waitSeconds = 60 / $this->rpmLimit * $attempt;
+                    $waitSeconds = 30; // Wait 30s to clear the RPM limit
                     Log::channel('seo')->warning(
                         "Gemini rate limited (attempt {$attempt}/{$maxRetries}). "
                         . "Waiting {$waitSeconds}s..."
                     );
-                    sleep((int) $waitSeconds);
+                    sleep($waitSeconds);
                     continue;
                 }
 
@@ -112,8 +122,9 @@ class GeminiService
 
             } catch (\RuntimeException $e) {
                 if ($attempt === $maxRetries) {
-                    throw $e;
+                    throw new \RuntimeException("Gemini failed after {$maxRetries} retries. Last error: " . $e->getMessage());
                 }
+                echo "Gemini attempt {$attempt} failed: " . $e->getMessage() . "\n";
                 Log::channel('seo')->warning(
                     "Gemini attempt {$attempt} failed: {$e->getMessage()}"
                 );

@@ -11,8 +11,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Singletons for SEO services (ensures shared GeminiService instance)
         $this->app->singleton(\App\Services\Seo\GeminiService::class);
+        $this->app->singleton(\App\Services\Seo\SemanticExtractorService::class);
         $this->app->singleton(\App\Services\Seo\GeminiContentGenerator::class);
+        $this->app->singleton(\App\Services\Seo\ToolContextExtractor::class);
     }
 
     public function boot(): void

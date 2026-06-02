@@ -59,3 +59,26 @@
     </div>
 </section>
 @endif
+
+{{-- Related Search Terms from semantic_keywords --}}
+@if(isset($longTailTerms) && $longTailTerms->isNotEmpty())
+<section class="seo-section related-searches-section mt-4" style="padding:1rem 0;">
+    <h3 style="font-size:0.9rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.05em;">
+        Related Searches
+    </h3>
+    <div class="d-flex flex-wrap gap-2 mt-2">
+        @foreach($longTailTerms->merge($relatedTerms ?? collect()) as $term)
+        <span class="badge bg-light text-dark border" style="font-weight:400;font-size:0.82rem;padding:0.35rem 0.7rem;">
+            {{ $term }}
+        </span>
+        @endforeach
+    </div>
+</section>
+@endif
+
+{{-- Entity / Knowledge Graph Section --}}
+@if(isset($entityTerms) && $entityTerms->isNotEmpty())
+<section class="seo-section entity-section mt-3" style="padding:0.5rem 0;">
+    <meta itemprop="about" content="{{ $entityTerms->implode(', ') }}">
+</section>
+@endif
