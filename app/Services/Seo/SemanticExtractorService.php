@@ -8,16 +8,22 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
 
 /**
- * SemanticExtractorService v8.0
+ * SemanticExtractorService v10.0
  *
- * Extracts all 15 SEO keyword types for every tool page:
- *  1. Primary        6. Search Intent  11. Related
- *  2. Secondary      7. Entity         12. Supporting
- *  3. Long-tail      8. PAA            13. Modifier
- *  4. Short-tail     9. Question       14. Contextual
- *  5. LSI/NLP       10. Cluster        15. TF-IDF
+ * Extracts all 18 SEO keyword types for every tool page:
+ *  1. Primary        7. Semantic       13. Informational
+ *  2. Secondary      8. Long-tail      14. Short-tail
+ *  3. Autocomplete   9. Question       15. Modifier
+ *  4. LSI/NLP       10. Related        16. Contextual
+ *  5. PAA           11. Comparison     17. TF-IDF
+ *  6. Entity        12. Transactional  18. Trending
  *  + Autocomplete (Google Suggest — free, no API key)
- *  + Trending (bonus from AI)
+ *
+ * v10 fixes:
+ * - Added 'comparison', 'semantic', 'informational', 'transactional' types
+ * - Removed 'search_intent' type (it was a search_intent VALUE, not a keyword type)
+ * - Updated prompt with precise definitions for all 18 types
+ * - Cache key bumped to v10 to bust stale data
  */
 class SemanticExtractorService
 {
@@ -27,8 +33,8 @@ class SemanticExtractorService
 
     public function extractForTool(string $slug): Collection
     {
-        // v8 cache key — busts all previous cached data
-        $cacheKey = "semantics_v8:{$slug}";
+        // v10 cache key — busts all previous cached data
+        $cacheKey = "semantics_v10:{$slug}";
 
         return Cache::store('file')->remember($cacheKey, now()->addDays(7), function () use ($slug) {
             $toolName = ucwords(str_replace('-', ' ', $slug));
@@ -40,29 +46,34 @@ class SemanticExtractorService
             }
             sleep(2);
 
-            // ── B. Gemini: ALL 15 types in ONE call ───────────────
+            // ── B. Gemini: ALL 18 types in ONE call ───────────────
             if (!$this->gemini->isConfigured()) {
                 throw new \RuntimeException('GEMINI_API_KEY not configured');
             }
 
             $aiData = $this->generateAISemantics($toolName, $slug);
 
+            // v10 typeMap: 13 user-requested + 5 power types = 18 total
             $typeMap = [
+                // The 13 types user specifically requested:
                 'primary_keywords'       => ['primary',       'transactional',  0.95],
                 'secondary_keywords'     => ['secondary',     'informational',  0.88],
-                'long_tail_keywords'     => ['long_tail',     'informational',  0.85],
-                'short_tail_keywords'    => ['short_tail',    'navigational',   0.80],
+                'autocomplete_extended'  => ['autocomplete',  'informational',  0.82],
                 'lsi_keywords'           => ['lsi',           'informational',  0.85],
-                'search_intent_keywords' => ['search_intent', 'informational',  0.82],
-                'entity_keywords'        => ['entity',        'informational',  0.90],
                 'paa_questions'          => ['paa',           'informational',  0.92],
+                'entity_keywords'        => ['entity',        'informational',  0.90],
+                'semantic_keywords'      => ['semantic',      'informational',  0.85],
+                'long_tail_keywords'     => ['long_tail',     'informational',  0.85],
                 'question_keywords'      => ['question',      'informational',  0.85],
-                'cluster_keywords'       => ['cluster',       'informational',  0.80],
                 'related_keywords'       => ['related',       'informational',  0.78],
-                'supporting_keywords'    => ['supporting',    'informational',  0.75],
+                'comparison_keywords'    => ['comparison',    'commercial',     0.82],
+                'transactional_keywords' => ['transactional', 'transactional',  0.88],
+                'informational_keywords' => ['informational', 'informational',  0.80],
+                // Additional power types:
+                'short_tail_keywords'    => ['short_tail',    'navigational',   0.80],
                 'modifier_keywords'      => ['modifier',      'commercial',     0.80],
-                'contextual_keywords'    => ['contextual',    'informational',  0.78],
                 'tfidf_keywords'         => ['tfidf',         'informational',  0.88],
+                'contextual_keywords'    => ['contextual',    'informational',  0.78],
                 'trending_keywords'      => ['trending',      'informational',  0.75],
             ];
 
@@ -87,7 +98,7 @@ class SemanticExtractorService
             }
 
             Log::channel('seo')->info(
-                "v8 extraction: {$slug} → {$keywords->count()} total " .
+                "v10 extraction: {$slug} → {$keywords->count()} total " .
                 "({$aiCount} AI + " . ($keywords->count() - $aiCount) . " autocomplete)"
             );
 
@@ -98,103 +109,108 @@ class SemanticExtractorService
     private function generateAISemantics(string $toolName, string $slug): array
     {
         $prompt = <<<PROMPT
-You are an expert SEO keyword researcher with deep knowledge of semantic SEO.
-Generate a precise keyword dataset for this tool.
+Expert SEO keyword researcher. Generate complete keyword data for:
 
-TOOL: {$toolName}
-URL SLUG: {$slug}
+TOOL: {$toolName}  |  SLUG: /{$slug}
 
-CRITICAL DEFINITIONS — Follow these exactly:
+Return ONLY valid JSON. Start { end }. No markdown. No extra text.
 
-PRIMARY KEYWORDS = The exact phrases users type in Google to find THIS tool.
-Example for BMI Calculator: "bmi calculator", "body mass index calculator"
-NOT: generic words, brand names
+DEFINITIONS (follow precisely — wrong types = wasted API call):
 
-SECONDARY KEYWORDS = Alternative search phrases for same intent.
-Example: "calculate bmi online", "bmi chart by age"
-NOT: synonyms of the tool name
+primary: Exact search phrases users type to find THIS specific tool.
+  ✅ "{$toolName}" variations, most-searched forms
+  ❌ Generic words, too-broad terms
 
-LONG-TAIL KEYWORDS = 4+ word phrases with specific intent.
-Example: "how to calculate bmi for women over 40"
-NOT: 3-word phrases, generic phrases
+secondary: Alternative phrases for same search intent.
+  ✅ Synonymous tool names, action-first phrases
+  ❌ Synonyms of the concept itself
 
-SHORT-TAIL KEYWORDS = 1-2 words SPECIFIC to this tool's topic (not the tool type).
-Example for BMI: "bmi", "body mass index" — NOT "calculator", "tool", "online"
+autocomplete_extended: Additional autocomplete suggestions beyond Google Suggest.
+  ✅ "{$toolName} for [industry]", "{$toolName} [year]"
+  ❌ Exact duplicates of primary keywords
 
-LSI KEYWORDS = Terms that co-occur with this topic in expert articles.
-These are NOT synonyms. They are conceptually related terms from the same domain.
-Example for ROI: "hurdle rate", "opportunity cost", "discount rate", "WACC", "IRR"
-Example for BMI: "waist-to-hip ratio", "body fat percentage", "metabolic rate"
-NOT: "profitability" for ROI (that's a synonym, not LSI)
+lsi: Words that co-occur with this topic in TOP-RANKING expert articles.
+  ✅ Domain concepts that appear NEAR this topic (NOT synonyms)
+  ✅ ROI example: "hurdle rate","opportunity cost","WACC","discount rate"
+  ❌ "profitability" for ROI (synonym, not LSI)
 
-SEARCH INTENT KEYWORDS = Phrases revealing user motivation:
-- do-intent: user wants to USE the tool ("calculate roi now", "use roi calculator")
-- know-intent: user wants to LEARN ("what is roi", "roi explained")
-- compare-intent: user evaluating ("roi vs irr", "roi vs payback period")
-- navigate-intent: user going somewhere ("roi calculator toolshub", "roi calculator online free")
+paa: Real "People Also Ask" questions from Google SERPs.
+  ✅ Must start with How/What/Why/Which/When/Can/Is/Are
+  ✅ Must be specific to {$toolName}
+  ❌ Generic questions
 
-ENTITY KEYWORDS = Named real-world entities (Knowledge Graph) — proper nouns:
-Named formulas, named concepts, organizations, standards, academic sources.
-Example for ROI: "Dupont Analysis", "Corporate Finance Institute", "CFA Institute",
-"GAAP", "IFRS", "Harvard Business Review"
-NOT: generic terms like "financial analysis"
+entity: Named real-world entities for Google Knowledge Graph.
+  ✅ Named formulas (e.g. "Dupont Analysis"), organizations ("CFA Institute"),
+     standards ("GAAP"), academic sources, proper nouns
+  ❌ Generic terms like "financial analysis"
 
-PAA KEYWORDS = Real "People Also Ask" questions users see in Google.
-Must be actual questions (start with How/What/Why/Which/When/Can/Is/Are).
-Must be specific to THIS tool — not generic questions.
+semantic: Conceptually related terms that help search engines understand topic depth.
+  ✅ Related methods, complementary concepts, domain vocabulary
+  ❌ Synonyms of tool name
 
-QUESTION KEYWORDS = Other question formats users search.
-Different from PAA — these are direct search queries as questions.
+long_tail: 4+ word highly specific search phrases.
+  ✅ "{$toolName} for [specific profession/scenario/industry]"
+  ❌ Phrases under 4 words
 
-CLUSTER KEYWORDS = The topical silo/hub this tool belongs to.
-These are category-level keywords for the pillar page.
-Example for ROI: "financial calculators", "investment analysis tools", "business ROI tools"
+question: Question-format search queries (broader than PAA).
+  ✅ "What is [concept]?", "How does [tool] work?"
+  ❌ Non-question formats
 
-RELATED KEYWORDS = Other specific tools/methods users need alongside this.
-Example for ROI: "npv calculator", "irr calculator", "payback period calculator"
-NOT: generic financial terms
+related: Specific OTHER tools users need alongside this one.
+  ✅ Tool names, method names, calculator names
+  ❌ Generic concept words
 
-SUPPORTING KEYWORDS = Educational/definitional content that supports this tool.
-Example: "how to read roi results", "roi formula derivation", "roi interpretation guide"
+comparison: Phrases users search to compare this tool/concept with alternatives.
+  ✅ "[tool concept] vs [alternative]", "[tool] compared to [other]"
+  ❌ Non-comparison phrases
 
-MODIFIER KEYWORDS = Quality/access modifiers prepended to tool name.
-ALWAYS follow this format: [modifier] + [tool name or core concept]
-Example: "free roi calculator", "accurate roi calculator", "advanced roi calculator"
+transactional: High-commercial-intent phrases ready to convert.
+  ✅ "use {$toolName} now", "calculate [X] online", "free [tool] instantly"
+  ❌ Informational phrases
 
-CONTEXTUAL KEYWORDS = Industry/situation-specific applications.
-Example: "roi calculator for e-commerce", "marketing campaign roi", "real estate roi"
-NOT: generic modifiers
+informational: Educational/research-intent phrases.
+  ✅ "how [concept] works", "what is [concept]", "[concept] explained"
+  ❌ Tool-action phrases
 
-TF-IDF KEYWORDS = High-importance terms that appear frequently in TOP-RANKING
-articles about this topic but rarely elsewhere. These signal expertise to Google.
-Example for ROI: "net present value", "internal rate of return", "hurdle rate",
-"weighted average cost of capital", "opportunity cost of capital"
-NOT: common words like "profit" or "cost"
+short_tail: 1-2 word topic-specific terms (NOT tool type words).
+  ✅ "roi", "body mass index", "compound interest"
+  ❌ "calculator", "tool", "online", "free"
 
-TRENDING KEYWORDS = Currently rising search terms (2024-2025) for this topic.
-Example: "ai-powered roi calculator", "esg roi metrics", "roi for remote work"
+modifier: [quality/access word] + [tool name] combinations.
+  ✅ "free {$toolName}", "accurate {$toolName}", "best {$toolName}"
+  ❌ Tool name alone
 
----
-Return ONLY this JSON structure. No markdown. Start with { end with }
+tfidf: High-frequency important terms from expert articles on this topic.
+  ✅ Technical domain terms that signal authority
+  ❌ Common everyday words
+
+contextual: Industry/situation-specific application phrases.
+  ✅ "[tool] for [specific industry]", "[tool] during [situation]"
+  ❌ Generic modifiers
 
 {
-  "primary_keywords": ["3 exact search phrases users type to find this tool"],
-  "secondary_keywords": ["5 alternative search phrases for same intent"],
-  "long_tail_keywords": ["8 specific 4+ word phrases with clear user intent"],
-  "short_tail_keywords": ["3 topic-specific 1-2 word terms — NOT tool type words"],
-  "lsi_keywords": ["8 co-occurring domain terms — NOT synonyms of the tool name"],
-  "search_intent_keywords": ["4 phrases: 1 do-intent, 1 know-intent, 1 compare-intent, 1 navigate-intent"],
-  "entity_keywords": ["5 named real-world entities, formulas, organizations, standards"],
-  "paa_questions": ["8 real PAA questions starting with How/What/Why/Which/When/Can"],
-  "question_keywords": ["5 question-format search queries specific to this tool"],
-  "cluster_keywords": ["5 topical cluster/pillar keywords for this tool's silo"],
-  "related_keywords": ["6 specific related tools or methods users need alongside this"],
-  "supporting_keywords": ["5 educational/definitional content keywords"],
-  "modifier_keywords": ["6 modifier+toolname combinations: free/online/best/accurate/simple/advanced"],
-  "contextual_keywords": ["5 industry/situation-specific application keywords"],
-  "tfidf_keywords": ["5 high-importance expert domain terms that signal topical authority"],
+  "primary_keywords": ["3 exact most-searched phrases for {$toolName}"],
+  "secondary_keywords": ["5 alternative search phrases same intent"],
+  "autocomplete_extended": ["5 extended autocomplete suggestions"],
+  "lsi_keywords": ["8 co-occurring domain expert terms — NOT synonyms"],
+  "paa_questions": ["8 real PAA questions How/What/Why/Which/When/Can"],
+  "entity_keywords": ["5 named entities — proper nouns, organizations, formulas"],
+  "semantic_keywords": ["6 conceptually related terms for topic depth"],
+  "long_tail_keywords": ["8 specific 4+ word phrases"],
+  "question_keywords": ["5 question-format search queries"],
+  "related_keywords": ["6 specific related tools or methods"],
+  "comparison_keywords": ["4 vs/compared-to phrases"],
+  "transactional_keywords": ["4 high-commercial-intent action phrases"],
+  "informational_keywords": ["5 educational/research-intent phrases"],
+  "short_tail_keywords": ["3 topic-specific 1-2 word terms"],
+  "modifier_keywords": ["5 modifier+toolname: free/online/best/accurate/advanced"],
+  "tfidf_keywords": ["5 high-authority domain expert terms"],
+  "contextual_keywords": ["4 industry/situation-specific application phrases"],
   "trending_keywords": ["3 currently rising 2024-2025 search terms"]
 }
+
+CRITICAL: Replace ALL placeholder text with REAL keywords for {$toolName}.
+Return ONLY the JSON object.
 PROMPT;
 
         return $this->gemini->generateJson($prompt);

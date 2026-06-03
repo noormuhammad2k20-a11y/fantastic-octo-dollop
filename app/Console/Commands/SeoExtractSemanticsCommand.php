@@ -35,10 +35,19 @@ class SeoExtractSemanticsCommand extends Command
             ->where('t.status', 'ok');
 
         if (!$this->option('force')) {
-            // Skip tools that already have semantic keywords
-            $query->whereNotIn('t.tool_slug',
-                DB::table('semantic_keywords')->distinct()->pluck('tool_slug')
-            );
+            // FIXED v10: Only skip tools that have AI (Gemini) keywords.
+            // Previously ALL 1417 tools were skipped because every tool has
+            // autocomplete (google_suggest) keywords. The old code checked for
+            // ANY keyword, so 100% of tools were in the "already done" list.
+            $slugsWithAiKeywords = DB::table('semantic_keywords')
+                ->where('source', 'gemini')
+                ->distinct()
+                ->pluck('tool_slug');
+
+            if ($slugsWithAiKeywords->isNotEmpty()) {
+                $query->whereNotIn('t.tool_slug', $slugsWithAiKeywords);
+            }
+            // If no tools have AI keywords yet, process all (first run)
         }
 
         if ($slug = $this->option('tool')) {
