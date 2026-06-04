@@ -1,1 +1,0 @@
-<?php /**PATH D:\Xamp\htdocs\ToolsHub\resources\views/tools/partials/seo_content.blade.php ENDPATH**/ ?>

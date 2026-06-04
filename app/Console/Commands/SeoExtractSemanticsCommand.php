@@ -41,6 +41,7 @@ class SeoExtractSemanticsCommand extends Command
             // ANY keyword, so 100% of tools were in the "already done" list.
             $slugsWithAiKeywords = DB::table('semantic_keywords')
                 ->where('source', 'gemini')
+                ->where('keyword_type', '!=', 'autocomplete')
                 ->distinct()
                 ->pluck('tool_slug');
 

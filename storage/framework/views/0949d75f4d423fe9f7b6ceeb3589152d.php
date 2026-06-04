@@ -5,38 +5,7 @@
 </section>
 <?php endif; ?>
 
-<?php if($relatedTools->isNotEmpty()): ?>
-<section class="seo-section related-tools-section mt-5" style="padding-top: 0;" aria-label="Related tools">
-    <div class="category-header">
-        <div>
-            <h2>Related Tools You Might Need</h2>
-        </div>
-    </div>
-    <div class="row g-3">
-        <?php $__currentLoopData = $relatedTools; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <?php
-                // Find the tool definition from config/tools.php to get icon/description
-                // We assume $tools array is available in the view (passed from controller)
-                $relToolConfig = $tools[$rt->tool_slug] ?? null;
-            ?>
-            <?php if($relToolConfig): ?>
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-                <a href="<?php echo e(url('/' . $rt->tool_slug)); ?>" class="tool-card h-100" title="<?php echo e($rt->anchor_text_primary); ?>">
-                    <div class="tool-icon">
-                        <i class="<?php echo e($relToolConfig['icon'] ?? 'fas fa-tools'); ?>"></i>
-                    </div>
-                    <div class="tool-body">
-                        <h3 class="tool-name"><?php echo e($rt->anchor_text_primary); ?></h3>
-                        <p class="tool-desc"><?php echo e(mb_strimwidth($relToolConfig['description'] ?? $relToolConfig['subtitle'] ?? '', 0, 80, '...')); ?></p>
-                    </div>
-                    <span class="tool-arrow">Use tool <i class="fas fa-arrow-right"></i></span>
-                </a>
-            </div>
-            <?php endif; ?>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    </div>
-</section>
-<?php endif; ?>
+
 
 <?php
     // v12: Load PAA questions with real answers from semantic_keywords table
@@ -116,15 +85,29 @@
 <?php endif; ?>
 
 
-<?php if(isset($longTailTerms) && $longTailTerms->isNotEmpty()): ?>
-<section class="seo-section related-searches-section mt-4" style="padding:1rem 0;">
-    <h3 style="font-size:0.9rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.05em;">
-        Related Searches
-    </h3>
-    <div class="d-flex flex-wrap gap-2 mt-2">
-        <?php $__currentLoopData = $longTailTerms->merge($relatedTerms ?? collect()); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-        <span class="badge bg-light text-dark border" style="font-weight:400;font-size:0.82rem;padding:0.35rem 0.7rem;">
-            <?php echo e($term); ?>
+<?php
+    $searchChips = \Illuminate\Support\Facades\DB::table('semantic_keywords')
+        ->where('tool_slug', $slug)
+        ->whereIn('keyword_type', ['long_tail', 'informational', 'comparison'])
+        ->where('is_active', 1)
+        ->where('keyword', 'not like', '% calculator')  // exclude tool names
+        ->where('keyword', 'not like', '% tool')
+        ->where('keyword', 'not like', '% generator')
+        ->orderByDesc('confidence_score')
+        ->limit(10)
+        ->pluck('keyword');
+?>
+
+<?php if($searchChips->isNotEmpty()): ?>
+<section style="margin-top:1.5rem;padding:1rem 0;">
+    <p style="font-size:0.8rem;font-weight:600;color:#6b7280;text-transform:uppercase;
+              letter-spacing:.06em;margin:0 0 0.6rem;">Related Searches</p>
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+        <?php $__currentLoopData = $searchChips; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $chip): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <span style="display:inline-block;padding:0.3rem 0.75rem;background:#f3f4f6;
+                     border:1px solid #e5e7eb;border-radius:20px;font-size:0.82rem;
+                     color:#374151;cursor:default;">
+            <?php echo e($chip); ?>
 
         </span>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

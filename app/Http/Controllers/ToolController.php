@@ -63,33 +63,42 @@ class ToolController extends Controller
             $schemaMarkup = $schemaGenerator->generate($tool, url()->current(), $faqData, $categoryData);
             View::share('schemaMarkup', $schemaMarkup);
 
-            // Load approved SEO content
-            $seoDraft = \App\Models\ContentDraft::where('tool_slug', $tool['slug'])
-                ->where('status', 'approved')
-                ->select(['draft_content', 'outline_json', 'word_count'])
-                ->first();
+            // Load approved SEO content (cached 6 hours)
+            $seoDraft = \Illuminate\Support\Facades\Cache::store('file')
+                ->remember("tool_draft:{$tool['slug']}", now()->addHours(6), function() use ($tool) {
+                    return \App\Models\ContentDraft::where('tool_slug', $tool['slug'])
+                        ->where('status', 'approved')
+                        ->select(['draft_content', 'outline_json', 'word_count'])
+                        ->first();
+                });
 
-            // Load related tools from internal_links
-            $relatedTools = \Illuminate\Support\Facades\DB::table('internal_links as il')
-                ->join('tool_health_checks as t', 't.tool_slug', '=', 'il.target_tool_slug')
-                ->where('il.source_tool_slug', $tool['slug'])
-                ->where('il.is_active', 1)
-                ->orderByDesc('il.relevance_score')
-                ->limit(6)
-                ->select([
-                    't.tool_slug',
-                    'il.anchor_text_primary',
-                    'il.relevance_score',
-                ])
-                ->get();
+            // Load related tools from internal_links (cached 24 hours)
+            $relatedTools = \Illuminate\Support\Facades\Cache::store('file')
+                ->remember("tool_related:{$tool['slug']}", now()->addHours(24), function() use ($tool) {
+                    return \Illuminate\Support\Facades\DB::table('internal_links as il')
+                        ->join('tool_health_checks as t', 't.tool_slug', '=', 'il.target_tool_slug')
+                        ->where('il.source_tool_slug', $tool['slug'])
+                        ->where('il.is_active', 1)
+                        ->orderByDesc('il.relevance_score')
+                        ->limit(6)
+                        ->select([
+                            't.tool_slug',
+                            'il.anchor_text_primary',
+                            'il.relevance_score',
+                        ])
+                        ->get();
+                });
 
-            // Load all keywords for this tool
-            $allKeywords = \Illuminate\Support\Facades\DB::table('semantic_keywords')
-                ->where('tool_slug', $tool['slug'])
-                ->where('is_active', 1)
-                ->orderByDesc('confidence_score')
-                ->get(['keyword_type', 'keyword'])
-                ->groupBy('keyword_type');
+            // Load all keywords for this tool (cached 24 hours)
+            $allKeywords = \Illuminate\Support\Facades\Cache::store('file')
+                ->remember("tool_kw:{$tool['slug']}", now()->addHours(24), function() use ($tool) {
+                    return \Illuminate\Support\Facades\DB::table('semantic_keywords')
+                        ->where('tool_slug', $tool['slug'])
+                        ->where('is_active', 1)
+                        ->orderByDesc('confidence_score')
+                        ->get(['keyword_type', 'keyword'])
+                        ->groupBy('keyword_type');
+                });
 
             $paaQuestions   = $allKeywords->get('paa',       collect())->pluck('keyword')->take(7);
             $relatedTerms   = $allKeywords->get('related',   collect())->pluck('keyword')->take(8);

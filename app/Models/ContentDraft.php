@@ -38,6 +38,18 @@ class ContentDraft extends Model
         'published_at' => 'datetime',
     ];
 
+    // v13: Invalidate page cache when a draft is approved
+    protected static function boot()
+    {
+        parent::boot();
+        static::updated(function ($draft) {
+            if ($draft->isDirty('status') && $draft->status === 'approved') {
+                \Illuminate\Support\Facades\Cache::forget("tool_draft:{$draft->tool_slug}");
+                \Illuminate\Support\Facades\Cache::forget("tool_kw:{$draft->tool_slug}");
+            }
+        });
+    }
+
     // ─── Scopes ──────────────────────────────────────────────────
 
     /**

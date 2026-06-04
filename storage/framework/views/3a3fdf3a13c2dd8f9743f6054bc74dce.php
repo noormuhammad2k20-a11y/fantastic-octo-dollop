@@ -35,8 +35,12 @@
                 <div class="col-md-6 col-lg-4">
                     <a href="<?php echo e($url); ?>" class="tool-card text-decoration-none">
                         <div class="tool-icon">
-                            <?php echo $targetConfig['icon'] ?? '<i class="fa-solid fa-wrench"></i>'; ?>
+                            <?php if(isset($targetConfig['icon']) && str_contains($targetConfig['icon'], '<i')): ?>
+                                <?php echo $targetConfig ['icon']; ?>
 
+                            <?php else: ?>
+                                <i class="<?php echo e($targetConfig['icon'] ?? 'fa-solid fa-wrench'); ?>"></i>
+                            <?php endif; ?>
                         </div>
                         <div class="tool-body">
                             <h4 class="tool-name"><?php echo e($anchorText); ?></h4>

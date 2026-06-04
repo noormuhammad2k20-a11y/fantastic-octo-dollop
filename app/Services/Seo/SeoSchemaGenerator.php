@@ -179,6 +179,24 @@ class SeoSchemaGenerator
         }
 
         // ─── 6. FAQPage (conditional) ──────────────────────────────
+        // v13: If no custom FAQ, pull PAA questions with real answers from DB
+        if (empty($faq)) {
+            $paaFromDb = \Illuminate\Support\Facades\DB::table('semantic_keywords')
+                ->where('tool_slug', $tool['slug'] ?? '')
+                ->where('keyword_type', 'paa')
+                ->where('is_active', 1)
+                ->whereNotNull('answer')
+                ->limit(7)
+                ->get(['keyword', 'answer']);
+
+            if ($paaFromDb->isNotEmpty()) {
+                $faq = $paaFromDb->map(fn($r) => [
+                    'q' => $r->keyword,
+                    'a' => $r->answer,
+                ])->toArray();
+            }
+        }
+
         if (!empty($faq) && is_array($faq)) {
             $faqEntities = [];
             foreach ($faq as $item) {

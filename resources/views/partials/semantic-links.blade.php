@@ -35,7 +35,11 @@
                 <div class="col-md-6 col-lg-4">
                     <a href="{{ $url }}" class="tool-card text-decoration-none">
                         <div class="tool-icon">
-                            {!! $targetConfig['icon'] ?? '<i class="fa-solid fa-wrench"></i>' !!}
+                            @if(isset($targetConfig['icon']) && str_contains($targetConfig['icon'], '<i'))
+                                {!! $targetConfig ['icon'] !!}
+                            @else
+                                <i class="{{ $targetConfig['icon'] ?? 'fa-solid fa-wrench' }}"></i>
+                            @endif
                         </div>
                         <div class="tool-body">
                             <h4 class="tool-name">{{ $anchorText }}</h4>

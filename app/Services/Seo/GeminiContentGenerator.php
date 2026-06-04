@@ -146,17 +146,32 @@ H2: Key Limitations — 70-90 words:
 • Include: {$tf2}
 • This section is what separates expert content from generic AI content
 
-━━━ CRITICAL RULES ━━━
-1. NO FAQ section — the page already has one
-2. NO "Related Tools" section — the page already has one
-3. NO URLs, no href="...", no /tool-name links — they break with 404 errors
-4. NO bold keywords — **keyword** is spam signal to Google
-5. Acronyms must stay UPPERCASE in headings: BMI not Bmi, ROI not Roi, ERA not Era
-6. Primary keyword density max 1.5%
-7. Every LSI/TF-IDF term must be in a meaningful sentence explaining it
-8. FORBIDDEN phrases: "paramount","indispensable","game-changer","seamlessly",
-   "leverage" (as verb),"delve into","it's worth noting","In today's world",
-   "Embarking on","Look no further","Are you looking for"
+━━━ ABSOLUTE OUTPUT RULES — VIOLATING ANY RULE = REJECTION ━━━
+
+FORMAT RULES (most important):
+1. Output ONLY valid HTML: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>
+2. ZERO markdown allowed: no **bold**, no *italic*, no # heading, no - bullets, no 1. lists
+   Write lists as: <ol><li>Step text here</li></ol> — NOT as "1. Step text"
+   Write bold as: <strong>term</strong> — NOT as **term**
+3. NO URLs, no href="...", no /slug-links anywhere — they create broken links
+4. NO bold keywords for SEO: don't use <strong> on primary keywords
+   Use <strong> ONLY for non-keyword emphasis (formula variable names, important terms)
+
+CONTENT RULES:
+5. NO "Frequently Asked Questions" section — page already has this
+6. NO "Related Tools" section — page already has this
+7. Acronyms UPPERCASE in headings: BMI not Bmi, ROI not Roi, ERA not Era
+8. Primary keyword density max 1.5% (appears 2-3 times max)
+9. Every LSI/TF-IDF term in a meaningful explanatory sentence
+10. FORBIDDEN phrases: "paramount","indispensable","game-changer","seamlessly",
+    "leverage" (verb),"delve into","it's worth noting","In today's world",
+    "Embarking on","Look no further","Are you looking for","As an AI language model"
+
+STRUCTURE RULES:
+11. Steps MUST use <ol><li> format — NOT markdown "1. step"
+12. Formula MUST be in its own <p> tag
+13. Every example MUST end with the calculated result number
+14. Limitations section MUST have exactly 3 limitations
 
 ━━━ KEYWORD SECTION (append AFTER article, SAME response) ━━━
 Immediately after the article, append this HTML.
@@ -198,6 +213,7 @@ PROMPT;
         // v12: Fix acronym capitalization + remove any URLs Gemini invented
         $html = $this->fixAcronyms($html);
         $html = $this->removeUrls($html);
+        $html = $this->cleanMarkdownRemnants($html);
 
         $wordCount = str_word_count(strip_tags(
             preg_replace('/<section class="seo-kw-section".*?<\/section>/is', '', $html)
@@ -320,15 +336,89 @@ HTML;
 
     private function markdownToHtml(string $text): string
     {
-        $text = preg_replace('/^## (.+)$/m', '<h2>$1</h2>', $text);
-        $text = preg_replace('/^### (.+)$/m', '<h3>$1</h3>', $text);
-        $text = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $text);
-        $html = '';
-        foreach (preg_split('/\n\n+/', trim($text)) as $p) {
+        // Already has HTML tags — just clean up markdown remnants
+        if (str_contains($text, '<p>') || str_contains($text, '<h2>')) {
+            return $this->cleanMarkdownRemnants($text);
+        }
+
+        // Full markdown → HTML conversion
+        // 1. Headers
+        $text = preg_replace('/^#### (.+)$/m', '<h4>$1</h4>', $text);
+        $text = preg_replace('/^### (.+)$/m',  '<h3>$1</h3>', $text);
+        $text = preg_replace('/^## (.+)$/m',   '<h2>$1</h2>', $text);
+        $text = preg_replace('/^# (.+)$/m',    '<h2>$1</h2>', $text);
+
+        // 2. Bold + Italic
+        $text = preg_replace('/\*\*\*(.+?)\*\*\*/', '<strong><em>$1</em></strong>', $text);
+        $text = preg_replace('/\*\*(.+?)\*\*/',     '<strong>$1</strong>', $text);
+        $text = preg_replace('/\*(.+?)\*/',          '<em>$1</em>', $text);
+        $text = preg_replace('/__(.+?)__/',          '<strong>$1</strong>', $text);
+        $text = preg_replace('/_(.+?)_/',            '<em>$1</em>', $text);
+
+        // 3. Numbered lists — convert BEFORE paragraph splitting
+        $text = preg_replace_callback(
+            '/^(\d+)\.\s+\*\*(.+?)\*\*\s*(.*)$/m',
+            fn($m) => "<li><strong>{$m[2]}</strong> {$m[3]}</li>",
+            $text
+        );
+        $text = preg_replace('/^(\d+)\.\s+(.+)$/m', '<li>$2</li>', $text);
+
+        // 4. Bullet lists
+        $text = preg_replace('/^\*\s+(.+)$/m', '<li>$1</li>', $text);
+        $text = preg_replace('/^-\s+(.+)$/m',  '<li>$1</li>', $text);
+        $text = preg_replace('/^•\s+(.+)$/m',  '<li>$1</li>', $text);
+
+        // 5. Wrap consecutive <li> in <ul>
+        $text = preg_replace('/((<li>.*?<\/li>\n?)+)/s', "<ul>\n$0</ul>\n", $text);
+
+        // 6. Split into paragraphs and wrap
+        $html  = '';
+        $paras = preg_split('/\n{2,}/', trim($text));
+        foreach ($paras as $p) {
             $p = trim($p);
             if (empty($p)) continue;
-            $html .= str_starts_with($p, '<') ? "{$p}\n" : "<p>{$p}</p>\n";
+            if (preg_match('/^<(h[1-6]|ul|ol|section|div)/', $p)) {
+                $html .= "$p\n";
+            } else {
+                // Single linebreaks within paragraph
+                $p = preg_replace('/\n/', ' ', $p);
+                $html .= "<p>$p</p>\n";
+            }
         }
+
+        return $html;
+    }
+
+    private function cleanMarkdownRemnants(string $html): string
+    {
+        // Fix **bold** inside HTML
+        $html = preg_replace('/\*\*\*(.+?)\*\*\*/', '<strong><em>$1</em></strong>', $html);
+        $html = preg_replace('/\*\*(.+?)\*\*/',     '<strong>$1</strong>', $html);
+        $html = preg_replace('/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/', '<em>$1</em>', $html);
+
+        // Fix •• artifacts
+        $html = str_replace(['••', '•• '], ['', ''], $html);
+
+        // Fix numbered lists inside <p> tags
+        $html = preg_replace_callback(
+            '/<p>((?:\d+\.\s+.+\n?)+)<\/p>/',
+            function($m) {
+                $items = preg_replace('/^\d+\.\s+(.+)$/m', '<li>$1</li>', $m[1]);
+                return "<ol>{$items}</ol>";
+            },
+            $html
+        );
+
+        // Fix bullet lists inside <p> tags
+        $html = preg_replace_callback(
+            '/<p>((?:[*•-]\s+.+\n?)+)<\/p>/',
+            function($m) {
+                $items = preg_replace('/^[*•-]\s+(.+)$/m', '<li>$1</li>', $m[1]);
+                return "<ul>{$items}</ul>";
+            },
+            $html
+        );
+
         return $html;
     }
 
