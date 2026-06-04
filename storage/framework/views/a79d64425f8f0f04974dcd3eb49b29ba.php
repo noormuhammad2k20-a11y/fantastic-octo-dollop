@@ -158,7 +158,8 @@
                 <?php echo $__env->yieldContent('faq_content'); ?>
 
                 
-                <?php if(!View::hasSection('faq_content')): ?>
+                
+                <?php if(!View::hasSection('faq_content') && $paaQuestions->isEmpty()): ?>
                 <section class="seo-section" style="padding-top: 0;">
                     <h2>Frequently Asked Questions</h2>
                     <div class="faq-section">

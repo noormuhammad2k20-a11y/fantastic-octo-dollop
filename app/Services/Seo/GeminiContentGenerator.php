@@ -61,104 +61,102 @@ class GeminiContentGenerator
         $contextual  = $kw->get('contextual',    collect())->pluck('keyword');
         $modifier    = $kw->get('modifier',      collect())->pluck('keyword');
 
-        // Build FAQ questions from PAA + question types
-        $faqList = $paa->take(5)->merge($question->take(2))->values();
-        $faqText = $faqList->isEmpty()
-            ? "Generate 5 specific questions users ask about {$toolName}"
-            : $faqList->map(fn($q,$i) => ($i+1).". {$q}")->implode("\n");
+        // v12: FAQ and Related Tools are handled by blade.php — NOT in article
 
         $formulaLine = $formula
             ? "FORMULA: {$formula}"
             : "Include the standard formula for this tool with correct variable names";
 
-        $p1 = $primary->get(0, $toolName);
+        $p1  = $primary->get(0, $toolName);
         $lt1 = $longTail->get(0, '');
         $lt2 = $longTail->get(1, '');
-        $cmp = $comparison->get(0, '');
+        $cmp1 = $comparison->get(0, '');
         $e1  = $entity->get(0, '');
+        $lsi1 = $lsi->get(0, '');
+        $lsi2 = $lsi->get(1, '');
+        $lsi3 = $lsi->get(2, '');
         $tf1 = $tfidf->get(0, '');
+        $tf2 = $tfidf->get(1, '');
 
         $prompt = <<<PROMPT
-You are a senior technical writer. Write a focused, expert SEO article.
+You are a professional technical writer. Write a focused SEO article.
+This article will be placed BELOW the {$toolName} tool on a web page.
+The page already has: FAQ section, Related Tools section.
+DO NOT duplicate these.
 
-TOOL: {$toolName} | URL: /{$slug}
-CATEGORY: {$category}
-PURPOSE: {$purpose}
-USERS: {$userTypes}
+TOOL: {$toolName} | SLUG: /{$slug}
+CATEGORY: {$category} | PURPOSE: {$purpose}
+TARGET USERS: {$userTypes}
 
-━━━ KEYWORD INTELLIGENCE (USE ALL OF THESE NATURALLY IN THE ARTICLE) ━━━
-Primary: {$primary->take(3)->implode(', ')}
-Secondary: {$secondary->take(4)->implode(', ')}
-LSI/NLP: {$lsi->take(6)->implode(', ')}
-Semantic: {$semantic->take(4)->implode(', ')}
-Long-tail: {$longTail->take(5)->implode(' | ')}
-TF-IDF (authority signals): {$tfidf->take(4)->implode(', ')}
-Entity (Knowledge Graph): {$entity->take(4)->implode(', ')}
-Comparison: {$comparison->take(3)->implode(', ')}
-Transactional: {$transact->take(3)->implode(', ')}
-Contextual: {$contextual->take(3)->implode(', ')}
-Related tools: {$related->take(4)->implode(', ')}
-Modifier: {$modifier->take(3)->implode(', ')}
+━━━ KEYWORDS — USE ALL NATURALLY IN ARTICLE BODY ━━━
+Primary (2-3x, never bold): {$primary->take(3)->implode(', ')}
+Secondary (1-2x each): {$secondary->take(4)->implode(', ')}
+LSI/NLP (expert vocabulary — weave in): {$lsi->take(6)->implode(', ')}
+Semantic (topic depth): {$semantic->take(4)->implode(', ')}
+Long-Tail (use 3-4 of these): {$longTail->take(5)->implode(' | ')}
+TF-IDF (ALL must appear): {$tfidf->take(4)->implode(', ')}
+Entity Knowledge Graph: {$entity->take(4)->implode(', ')}
+Comparison: {$comparison->take(2)->implode(', ')}
+Transactional: {$transact->take(2)->implode(', ')}
 
-━━━ ARTICLE STRUCTURE (STRICT — 800 to 900 words TOTAL — NOT more, NOT less) ━━━
+━━━ ARTICLE STRUCTURE — 800-1000 WORDS TOTAL ━━━
 
-OPENING PARAGRAPH — 100-120 words:
-• Start with a concrete, specific real-world problem scenario with real numbers
-• A named person (fictional) in a specific situation
-• GOOD: "Marcus, a freelance developer billing \$95/hour, needed to justify..."
-• BAD: "Embarking on a journey...", "In today's competitive world..."
-• Naturally include: {$p1}
-• Naturally include: {$lt1}
-• NO forbidden phrases
+OPENING PARAGRAPH — 90-110 words:
+• Open with a named fictional person in a specific real situation with real numbers
+• GOOD: "James, a 34-year-old construction manager, needed to verify his weight
+  category before starting a new fitness program. At 92 kg and 1.78 m tall..."
+• BAD: "In today's health-conscious world", "Are you wondering", "Embarking on"
+• Include: {$p1} naturally — no bold, no quotes around it
+• Include: {$lt1} naturally
+• Must state the specific benefit the tool gives
 
-H2: "What Is [Core Concept]?" — 80-100 words:
-• One precise definition sentence
-• Use entity: {$e1}
-• Use 2 LSI terms from: {$lsi->take(6)->implode(', ')}
-• End with one concrete consequence of NOT knowing this
+H2: What Is [Core Concept]? — 80-100 words:
+• One precise definitional sentence
+• Include entity: {$e1} (name the organization/standard/formula)
+• Include LSI: {$lsi1} in a meaningful sentence
+• End with one real consequence of not knowing this
 
-H2: "The {$toolName} Formula" — 120-140 words:
+H2: The {$toolName} Formula — 120-140 words:
 • {$formulaLine}
-• Show formula on its own line
-• Define each variable (with unit + real value range)
-• ONE complete worked example: realistic numbers, show every step, state result
-• Use TF-IDF term: {$tf1}
+• Formula on its own line in plain text (no markdown, no code blocks)
+• Define each variable: name + unit + typical real-world range
+• ONE complete worked example:
+  Use specific numbers like 73.5 kg, 1.77 m — NOT round numbers like 70 kg, 1.8 m
+  Show every calculation step
+  State the result AND what it means in ONE plain sentence
+• Include: {$tf1}
 
-H2: "How to Use This {$toolName} in 4 Steps" — 120-140 words:
+H2: How to Use This {$toolName} — 100-120 words:
 • Exactly 4 numbered steps
-• Each step: action + brief why
-• Step 4 = "Interpret Your Result" (what different output ranges mean)
-• Use long-tail: {$lt2}
+• Each step: action sentence + why it matters sentence
+• Step 4 must be "Interpret your result" explaining what the output means
+• Include: {$lt2} naturally in one step
 
-H2: "2 Real-World Examples" — 180-200 words:
-• Example 1: [primary user type] — complete calculation with result
-• Example 2: [secondary user type OR different industry] — complete calculation
-• Each example: 3-4 sentences max, include final number answer
-• Use comparison keyword: {$cmp}
-• Use contextual keyword from: {$contextual->take(3)->implode(', ')}
+H2: Two Real Examples — 150-180 words:
+• Example 1: Most common user type — complete calculation with answer
+• Example 2: Different user type or edge case — complete calculation with answer
+• Each: Setup (2 sentences) → inputs → calculation → result sentence with final number
+• Include: {$cmp1} naturally
+• Include LSI: {$lsi2} and {$lsi3}
+• BOTH examples must end with their final calculated number — never cut off
 
-H2: "Frequently Asked Questions" — 130-150 words:
-• Answer EXACTLY these questions (real user research):
-{$faqText}
-• Each answer: 1-2 sentences, factually accurate
-• At least 1 answer must include a specific number
+H2: Key Limitations — 70-90 words:
+• Exactly 3 specific limitations of this calculation method
+• Format: [Limitation name]: one explanation sentence + one workaround sentence
+• Include: {$tf2}
+• This section is what separates expert content from generic AI content
 
-H2: "Related Tools" — 40-50 words:
-• Mention 3 related tools using: {$related->take(3)->implode(', ')}
-• One sentence: when to use each vs {$toolName}
-
-━━━ KEYWORD RULES ━━━
-• Primary keyword {$p1}: appears naturally 2-3 times — NEVER bolded
-• LSI/Semantic terms: minimum 5 different ones woven into explanations
-• TF-IDF terms: all 4 must appear — these signal domain authority
-• Comparison keywords: use naturally in context or FAQ
-• Transactional keywords: can appear in opening or closing
-• Short-tail: do NOT overuse (max 2x)
-• Informational keywords: use in H2 headings where natural
-• NEVER bold keywords: **keyword** is spam
-• FORBIDDEN: "paramount","indispensable","Embarking on","game-changer",
-  "seamlessly","leverage" (as verb),"In today's world","Look no further",
-  "it's worth noting","delve into"
+━━━ CRITICAL RULES ━━━
+1. NO FAQ section — the page already has one
+2. NO "Related Tools" section — the page already has one
+3. NO URLs, no href="...", no /tool-name links — they break with 404 errors
+4. NO bold keywords — **keyword** is spam signal to Google
+5. Acronyms must stay UPPERCASE in headings: BMI not Bmi, ROI not Roi, ERA not Era
+6. Primary keyword density max 1.5%
+7. Every LSI/TF-IDF term must be in a meaningful sentence explaining it
+8. FORBIDDEN phrases: "paramount","indispensable","game-changer","seamlessly",
+   "leverage" (as verb),"delve into","it's worth noting","In today's world",
+   "Embarking on","Look no further","Are you looking for"
 
 ━━━ KEYWORD SECTION (append AFTER article, SAME response) ━━━
 Immediately after the article, append this HTML.
@@ -196,6 +194,10 @@ PROMPT;
         if (!str_contains($html, '<p>') && !str_contains($html, '<h2>')) {
             $html = $this->markdownToHtml($html);
         }
+
+        // v12: Fix acronym capitalization + remove any URLs Gemini invented
+        $html = $this->fixAcronyms($html);
+        $html = $this->removeUrls($html);
 
         $wordCount = str_word_count(strip_tags(
             preg_replace('/<section class="seo-kw-section".*?<\/section>/is', '', $html)
@@ -365,5 +367,54 @@ HTML;
             'level'   => $m[1][$i],
             'heading' => strip_tags($m[2][$i]),
         ], array_keys($m[0]));
+    }
+
+    /**
+     * v12: Fix common acronym capitalization issues in generated HTML.
+     * ucwords() breaks "BMI" → "Bmi", "ROI" → "Roi", "ERA" → "Era"
+     */
+    private function fixAcronyms(string $html): string
+    {
+        $fixes = [
+            // Health
+            'Bmi'    => 'BMI',  'bmi '   => 'BMI ',
+            // Finance
+            'Roi'    => 'ROI',  'Cagr'   => 'CAGR', 'Apy'    => 'APY',
+            'Apr'    => 'APR',  'Irr'    => 'IRR',  'Npv'    => 'NPV',
+            'Vat'    => 'VAT',  'Ebitda' => 'EBITDA',
+            // Sports
+            'Era'    => 'ERA',  'Ops'    => 'OPS',  'Whip'   => 'WHIP',
+            'Fip'    => 'FIP',  'War'    => 'WAR',
+            // Developer
+            'Md5'    => 'MD5',  'Sha'    => 'SHA',  'Jwt'    => 'JWT',
+            'Json'   => 'JSON', 'Html'   => 'HTML', 'Css'    => 'CSS',
+            'Xml'    => 'XML',  'Url'    => 'URL',  'Api'    => 'API',
+            'Uuid'   => 'UUID', 'Sql'    => 'SQL',  'Ascii'  => 'ASCII',
+            // Math/Science
+            'Gpa'    => 'GPA',  'Gre'    => 'GRE',  'Sat'    => 'SAT',
+            'Ph'     => 'pH',   'Tdee'   => 'TDEE', 'Bmr'    => 'BMR',
+        ];
+
+        // Apply fixes only inside H1/H2/H3 tags to avoid breaking content
+        return preg_replace_callback(
+            '/<(h[1-3])[^>]*>(.*?)<\/(h[1-3])>/i',
+            function($match) use ($fixes) {
+                $heading = $match[2];
+                foreach ($fixes as $wrong => $correct) {
+                    $heading = str_replace($wrong, $correct, $heading);
+                }
+                return "<{$match[1]}>{$heading}</{$match[3]}>";
+            },
+            $html
+        );
+    }
+
+    /**
+     * v12: Remove any URLs/href attributes that Gemini invents (they cause 404 errors)
+     */
+    private function removeUrls(string $html): string
+    {
+        // Convert <a href="...">text</a> to just text
+        return preg_replace('/<a\s+[^>]*href=["\'][^"]*["\'][^>]*>(.*?)<\/a>/i', '$1', $html);
     }
 }

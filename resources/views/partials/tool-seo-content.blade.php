@@ -37,25 +37,76 @@
 </section>
 @endif
 
-@if($paaQuestions->isNotEmpty())
+@php
+    // v12: Load PAA questions with real answers from semantic_keywords table
+    $paaData = \Illuminate\Support\Facades\DB::table('semantic_keywords')
+        ->where('tool_slug', $slug)
+        ->where('keyword_type', 'paa')
+        ->where('is_active', 1)
+        ->limit(7)
+        ->get(['keyword', 'answer']);
+
+    // Decide data source: use DB answers if available, otherwise fall back to $paaQuestions
+    $hasPaaData = $paaData->isNotEmpty();
+@endphp
+@if($hasPaaData || $paaQuestions->isNotEmpty())
 <section class="seo-section faq-section mt-5" style="padding-top: 0;" aria-label="Frequently asked questions"
          itemscope itemtype="https://schema.org/FAQPage">
     <h2>Frequently Asked Questions</h2>
     <div class="accordion" id="paaAccordion">
-        @foreach($paaQuestions as $index => $question)
-        <div class="accordion-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
-            <h3 class="accordion-header" itemprop="name" id="paaHeading{{ $index }}">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#paaCollapse{{ $index }}" aria-expanded="false" aria-controls="paaCollapse{{ $index }}">
-                    {{ $question }}
-                </button>
-            </h3>
-            <div id="paaCollapse{{ $index }}" class="accordion-collapse collapse" aria-labelledby="paaHeading{{ $index }}" data-bs-parent="#paaAccordion" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                <div class="accordion-body" itemprop="text">
-                    See our detailed guide above for the complete answer regarding this topic.
+        @if($hasPaaData)
+            {{-- v12: Rich FAQ with real answers from database --}}
+            @foreach($paaData as $index => $paa)
+            <div class="accordion-item"
+                 itemscope itemprop="mainEntity"
+                 itemtype="https://schema.org/Question">
+                <h3 class="accordion-header" id="paaH{{ $index }}">
+                    <button class="accordion-button {{ $index > 0 ? 'collapsed' : '' }}"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#paaC{{ $index }}"
+                            itemprop="name">
+                        {{ $paa->keyword }}
+                    </button>
+                </h3>
+                <div id="paaC{{ $index }}"
+                     class="accordion-collapse collapse {{ $index === 0 ? 'show' : '' }}"
+                     data-bs-parent="#paaAccordion"
+                     itemscope itemprop="acceptedAnswer"
+                     itemtype="https://schema.org/Answer">
+                    <div class="accordion-body" itemprop="text">
+                        {{ $paa->answer ?? 'Based on our ' . ($tool['name'] ?? ucwords(str_replace('-', ' ', $slug))) . ' analysis, this depends on your specific inputs. Use the tool above for accurate, personalized results.' }}
+                    </div>
                 </div>
             </div>
-        </div>
-        @endforeach
+            @endforeach
+        @else
+            {{-- Fallback: questions without stored answers --}}
+            @foreach($paaQuestions as $index => $question)
+            <div class="accordion-item"
+                 itemscope itemprop="mainEntity"
+                 itemtype="https://schema.org/Question">
+                <h3 class="accordion-header" id="paaH{{ $index }}">
+                    <button class="accordion-button {{ $index > 0 ? 'collapsed' : '' }}"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#paaC{{ $index }}"
+                            itemprop="name">
+                        {{ $question }}
+                    </button>
+                </h3>
+                <div id="paaC{{ $index }}"
+                     class="accordion-collapse collapse {{ $index === 0 ? 'show' : '' }}"
+                     data-bs-parent="#paaAccordion"
+                     itemscope itemprop="acceptedAnswer"
+                     itemtype="https://schema.org/Answer">
+                    <div class="accordion-body" itemprop="text">
+                        Based on our {{ $tool['name'] ?? ucwords(str_replace('-', ' ', $slug)) }} analysis, this depends on your specific inputs. Use the tool above for accurate, personalized results.
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        @endif
     </div>
 </section>
 @endif

@@ -136,7 +136,8 @@
                 @yield('faq_content')
 
                 {{-- ════════════ SEO: FAQ ════════════ --}}
-                @if(!View::hasSection('faq_content'))
+                {{-- FIXED v12: Only show generic FAQ if no PAA questions exist (prevents duplicate FAQ) --}}
+                @if(!View::hasSection('faq_content') && $paaQuestions->isEmpty())
                 <section class="seo-section" style="padding-top: 0;">
                     <h2>Frequently Asked Questions</h2>
                     <div class="faq-section">

@@ -60,7 +60,7 @@ class SemanticExtractorService
                 'secondary_keywords'     => ['secondary',     'informational',  0.88],
                 'autocomplete_extended'  => ['autocomplete',  'informational',  0.82],
                 'lsi_keywords'           => ['lsi',           'informational',  0.85],
-                'paa_questions'          => ['paa',           'informational',  0.92],
+                // paa_questions handled separately below (v12: Q+A format)
                 'entity_keywords'        => ['entity',        'informational',  0.90],
                 'semantic_keywords'      => ['semantic',      'informational',  0.85],
                 'long_tail_keywords'     => ['long_tail',     'informational',  0.85],
@@ -86,6 +86,19 @@ class SemanticExtractorService
                         is_array($item) ? ($item['intent'] ?? $defaultIntent) : $defaultIntent,
                         is_array($item) ? (float)($item['confidence'] ?? $confidence) : $confidence
                     );
+                    $keywords->push($kw);
+                }
+            }
+
+            // v12: Process PAA questions separately (supports Q+A format)
+            foreach ($aiData['paa_questions'] ?? [] as $item) {
+                if (is_string($item)) {
+                    // Old format: just a question string
+                    $keywords->push($this->kw($item, 'paa', 'gemini', 'informational', 0.92));
+                } elseif (is_array($item) && !empty($item['q'])) {
+                    // New format: question + answer object
+                    $kw = $this->kw($item['q'], 'paa', 'gemini', 'informational', 0.92);
+                    $kw['answer'] = $item['a'] ?? null;
                     $keywords->push($kw);
                 }
             }
@@ -193,7 +206,9 @@ contextual: Industry/situation-specific application phrases.
   "secondary_keywords": ["5 alternative search phrases same intent"],
   "autocomplete_extended": ["5 extended autocomplete suggestions"],
   "lsi_keywords": ["8 co-occurring domain expert terms — NOT synonyms"],
-  "paa_questions": ["8 real PAA questions How/What/Why/Which/When/Can"],
+  "paa_questions": [
+    {"q": "How is [concept] calculated?", "a": "[2-3 sentence factual answer with a specific number or formula]"}
+  ],
   "entity_keywords": ["5 named entities — proper nouns, organizations, formulas"],
   "semantic_keywords": ["6 conceptually related terms for topic depth"],
   "long_tail_keywords": ["8 specific 4+ word phrases"],

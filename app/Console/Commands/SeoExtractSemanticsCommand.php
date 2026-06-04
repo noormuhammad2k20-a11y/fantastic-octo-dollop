@@ -88,13 +88,14 @@ class SeoExtractSemanticsCommand extends Command
                             DB::table('semantic_keywords')->updateOrInsert(
                                 [
                                     'tool_slug'    => $tool->tool_slug,
-                                    'keyword'      => mb_strtolower($kw['keyword']),
+                                    'keyword'      => mb_strtolower(trim($kw['keyword'])),
                                     'keyword_type' => $kw['type'],
                                 ],
                                 [
                                     'search_intent'    => $kw['intent'] ?? 'informational',
                                     'source'           => $kw['source'],
                                     'confidence_score' => $kw['confidence'] ?? 0.80,
+                                    'answer'           => $kw['answer'] ?? null,  // v12: PAA answers
                                     'is_active'        => 1,
                                     'language'         => 'en',
                                     'extracted_at'     => now(),
