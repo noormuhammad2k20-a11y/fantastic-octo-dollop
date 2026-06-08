@@ -1,7 +1,41 @@
 <?php if($seoDraft && $seoDraft->draft_content): ?>
 <section class="tool-seo-content" aria-label="About this tool">
+    
+    <?php if(isset($contentLastUpdated) && $contentLastUpdated): ?>
+    <div class="article-meta">
+        <span class="meta-item">
+            <i class="fas fa-calendar-check"></i>
+            Last updated: <?php echo e(\Carbon\Carbon::parse($contentLastUpdated)->format('M d, Y')); ?>
+
+        </span>
+        <span class="meta-item">
+            <i class="fas fa-user-check"></i>
+            Reviewed for accuracy by the ToolsHub editorial team
+        </span>
+    </div>
+    <?php endif; ?>
+
     <?php echo $seoDraft->draft_content; ?>
 
+
+    
+    
+    <?php if(isset($relatedTools) && $relatedTools->count() > 0): ?>
+    <div class="related-calculations">
+        <h3>Related Calculators</h3>
+        <ul>
+            <?php $__currentLoopData = $relatedTools->take(4); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $link): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <li>
+                <a href="<?php echo e(route('tool.show', $link->tool_slug)); ?>"
+                   title="<?php echo e($link->anchor_text_primary); ?>">
+                    <?php echo e($link->anchor_text_primary); ?>
+
+                </a>
+            </li>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </ul>
+    </div>
+    <?php endif; ?>
 </section>
 <?php endif; ?>
 

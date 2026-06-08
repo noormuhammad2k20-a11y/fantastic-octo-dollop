@@ -3104,3 +3104,166 @@ body {
     opacity: 1;
     transform: translateX(3px);
 }
+
+/* ================================================================
+   SEO KEYWORD SECTION — MUST ALWAYS BE HIDDEN
+   BUG #1 FIX: Prevents keyword stuffing penalty from Google.
+   The seo-kw-section is for internal tracking only.
+   ================================================================ */
+.seo-kw-section {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    pointer-events: none !important;
+}
+
+.seo-kw-pill {
+    display: none !important;
+}
+
+/* ================================================================
+   TOOL SEO CONTENT (Published Article)
+   ================================================================ */
+.tool-seo-content {
+    padding: 2rem 0;
+    line-height: 1.8;
+    color: var(--text-primary);
+}
+
+.tool-seo-content h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 2rem 0 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-light);
+}
+
+.tool-seo-content h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 1.5rem 0 0.5rem;
+}
+
+.tool-seo-content p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.8;
+}
+
+.tool-seo-content ul,
+.tool-seo-content ol {
+    margin: 0.75rem 0 1.25rem 1.5rem;
+    color: var(--text-secondary);
+}
+
+.tool-seo-content li {
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+.tool-seo-content strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.tool-seo-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.25rem 0;
+    font-size: 0.9rem;
+}
+
+.tool-seo-content table th,
+.tool-seo-content table td {
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--border-color);
+    text-align: left;
+}
+
+.tool-seo-content table th {
+    background: var(--bg-surface);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.tool-seo-content table td {
+    color: var(--text-secondary);
+}
+
+/* Related Calculations (Internal Links in Article) */
+.related-calculations {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    background: var(--bg-surface);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.related-calculations h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+    color: var(--text-primary);
+}
+
+.related-calculations ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.related-calculations li {
+    margin: 0;
+}
+
+.related-calculations a {
+    display: inline-block;
+    padding: 0.35rem 0.85rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.related-calculations a:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+}
+
+/* E-E-A-T: Article Meta (Author, Last Updated) */
+.article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.article-meta i {
+    margin-right: 0.3rem;
+    opacity: 0.7;
+}
+
+.article-meta .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}

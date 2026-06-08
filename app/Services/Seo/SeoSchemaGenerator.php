@@ -78,7 +78,17 @@ class SeoSchemaGenerator
         ];
 
         // ─── 3. WebPage ────────────────────────────────────────────
-        $graph[] = [
+        // Load content draft dates for E-E-A-T (dateModified/datePublished)
+        $draftDates = null;
+        if (!empty($tool['slug'])) {
+            $draftDates = \Illuminate\Support\Facades\DB::table('content_drafts')
+                ->where('tool_slug', $tool['slug'])
+                ->where('status', 'approved')
+                ->select(['created_at', 'updated_at'])
+                ->first();
+        }
+
+        $webPageNode = [
             '@type'       => 'WebPage',
             '@id'         => $pageId,
             'url'         => $currentUrl,
@@ -88,6 +98,21 @@ class SeoSchemaGenerator
             'about'       => ['@id' => $orgId],
             'mainEntity'  => ['@id' => $appId],
         ];
+
+        // E-E-A-T: Add dates if available
+        if ($draftDates) {
+            $webPageNode['datePublished'] = date('Y-m-d', strtotime($draftDates->created_at));
+            $webPageNode['dateModified'] = date('Y-m-d', strtotime($draftDates->updated_at));
+        }
+
+        // E-E-A-T: Add author/reviewer
+        $webPageNode['author'] = [
+            '@type' => 'Organization',
+            '@id'   => $orgId,
+            'name'  => $this->orgConfig['name'] ?? 'ToolsHub',
+        ];
+
+        $graph[] = $webPageNode;
 
         // ─── 3. BreadcrumbList ─────────────────────────────────────
         $breadcrumbItems = [];

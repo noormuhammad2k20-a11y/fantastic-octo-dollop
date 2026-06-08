@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
- * GeminiContentGenerator v10.0
+ * GeminiContentGenerator v11.0 (now powered by OpenRouter / Claude)
  *
  * Generates unique, humanized SEO articles using:
  * - Tool-specific context (from ToolContextExtractor)
@@ -79,130 +79,96 @@ class GeminiContentGenerator
         $tf2 = $tfidf->get(1, '');
 
         $prompt = <<<PROMPT
-You are a professional technical writer. Write a focused SEO article.
-This article will be placed BELOW the {$toolName} tool on a web page.
-The page already has: FAQ section, Related Tools section.
-DO NOT duplicate these.
+You are a professional SEO content writer. Write a focused, expert article.
+This article appears BELOW the {$toolName} tool. The page already has FAQ and Related Tools sections.
+DO NOT add FAQ, Related Tools, or any sections the page already has.
 
-TOOL: {$toolName} | SLUG: /{$slug}
+TOOL: {$toolName} | URL: /{$slug}
 CATEGORY: {$category} | PURPOSE: {$purpose}
 TARGET USERS: {$userTypes}
 
-━━━ KEYWORDS — USE ALL NATURALLY IN ARTICLE BODY ━━━
-Primary (2-3x, never bold): {$primary->take(3)->implode(', ')}
-Secondary (1-2x each): {$secondary->take(4)->implode(', ')}
-LSI/NLP (expert vocabulary — weave in): {$lsi->take(6)->implode(', ')}
-Semantic (topic depth): {$semantic->take(4)->implode(', ')}
-Long-Tail (use 3-4 of these): {$longTail->take(5)->implode(' | ')}
-TF-IDF (ALL must appear): {$tfidf->take(4)->implode(', ')}
-Entity Knowledge Graph: {$entity->take(4)->implode(', ')}
-Comparison: {$comparison->take(2)->implode(', ')}
-Transactional: {$transact->take(2)->implode(', ')}
+━━━ KEYWORD INTELLIGENCE — Use all naturally in article ━━━
+Primary Keywords (use 2-3× total, never bold): {$primary->take(3)->implode(', ')}
+Secondary Keywords (use 1-2× each): {$secondary->take(4)->implode(', ')}
+LSI / NLP Keywords (expert vocabulary): {$lsi->take(6)->implode(', ')}
+Semantic Keywords (topic depth signals): {$semantic->take(4)->implode(', ')}
+Long-Tail Keywords (use 3-4 of these): {$longTail->take(5)->implode(' | ')}
+TF-IDF Keywords (ALL must appear): {$tfidf->take(4)->implode(', ')}
+Entity Keywords (Knowledge Graph): {$entity->take(4)->implode(', ')}
+Comparison Keywords: {$comparison->take(2)->implode(', ')}
+Transactional Keywords: {$transact->take(2)->implode(', ')}
 
-━━━ ARTICLE STRUCTURE — 800-1000 WORDS TOTAL ━━━
+━━━ ARTICLE STRUCTURE — TARGET: 800-950 WORDS EXACTLY ━━━
+Count your words as you write. Stop at 950. Do not go over.
 
-OPENING PARAGRAPH — 90-110 words:
-• Open with a named fictional person in a specific real situation with real numbers
-• GOOD: "James, a 34-year-old construction manager, needed to verify his weight
-  category before starting a new fitness program. At 92 kg and 1.78 m tall..."
-• BAD: "In today's health-conscious world", "Are you wondering", "Embarking on"
-• Include: {$p1} naturally — no bold, no quotes around it
-• Include: {$lt1} naturally
-• Must state the specific benefit the tool gives
+OPENING — 70-80 words (keep it focused, not story-heavy):
+• Start with a NAMED fictional person + specific real numbers in a real situation
+  GOOD: "Marcus, a 38-year-old freelance developer billing 95 dollars per hour, needed to compare..."
+  BAD: "In today's world", "Are you wondering", "Whether you are", "Embarking on"
+• Include: primary keyword {$p1} — naturally, not quoted, not bolded
+• Include: long-tail {$lt1} — naturally
+• End with a direct CTA: "Use the {$toolName} above — it handles all calculation types instantly."
 
 H2: What Is [Core Concept]? — 80-100 words:
-• One precise definitional sentence
-• Include entity: {$e1} (name the organization/standard/formula)
-• Include LSI: {$lsi1} in a meaningful sentence
-• End with one real consequence of not knowing this
+• One precise, factual definition sentence
+• Include entity: {$e1} — name the organization/standard/formula
+• Include LSI term: {$lsi1} — in a sentence that explains it
+• Add one authoritative reference (e.g. "According to the National Institute of Standards and Technology (NIST)...")
+• If financial: mention that percentages are foundational to simple interest (I = P × R × T) and compound interest (A = P(1 + r/n)^nt) formulas
+• End with one real-world consequence of not knowing this concept
 
-H2: The {$toolName} Formula — 120-140 words:
+H2: The {$toolName} Formula — 110-130 words:
 • {$formulaLine}
-• Formula on its own line in plain text (no markdown, no code blocks)
-• Define each variable: name + unit + typical real-world range
-• ONE complete worked example:
-  Use specific numbers like 73.5 kg, 1.77 m — NOT round numbers like 70 kg, 1.8 m
-  Show every calculation step
-  State the result AND what it means in ONE plain sentence
-• Include: {$tf1}
+• Formula on its own line in plain text — NO code blocks, NO markdown
+• Define each variable with its unit and real-world value range
+• ONE complete worked example with specific non-round numbers
+  (e.g. 73.5 kg not 70 kg, 1.77 m not 1.8 m)
+• Show all calculation steps → state result → one plain-language interpretation
+• Include: {$tf1} naturally
 
-H2: How to Use This {$toolName} — 100-120 words:
-• Exactly 4 numbered steps
-• Each step: action sentence + why it matters sentence
-• Step 4 must be "Interpret your result" explaining what the output means
+H2: How to Use This {$toolName} — 100-110 words:
+• Exactly 4 steps as HTML ordered list: <ol><li>...</li></ol>
+• Each step: action (what to do) + why (why it matters)
+• Step 4 = "Interpret Your Result" — explain output ranges and what they mean
 • Include: {$lt2} naturally in one step
+• Naturally integrate the term "finder" (e.g. "percentage finder") in context
+• End with CTA: "Enter your values in the calculator above to get an instant result."
 
-H2: Two Real Examples — 150-180 words:
-• Example 1: Most common user type — complete calculation with answer
-• Example 2: Different user type or edge case — complete calculation with answer
-• Each: Setup (2 sentences) → inputs → calculation → result sentence with final number
-• Include: {$cmp1} naturally
-• Include LSI: {$lsi2} and {$lsi3}
-• BOTH examples must end with their final calculated number — never cut off
+H2: Three Practical Examples — 180-200 words:
+• Example 1: Most common user type — setup + inputs + full calculation + result number
+• Example 2: Different user type or edge case — setup + inputs + full calculation + result number
+• Example 3: Cover a long-tail keyword use case (e.g. tip calculation, student scores, CGPA conversion, body fat percentage)
+  For CGPA: "Students converting CGPA to percentage can use: Percentage = CGPA × 9.5"
+• All examples MUST end with their final calculated number — never cut off
+• Include: {$cmp1} naturally in context
+• Include: {$lsi2} and {$lsi3} in explanations
 
-H2: Key Limitations — 70-90 words:
-• Exactly 3 specific limitations of this calculation method
-• Format: [Limitation name]: one explanation sentence + one workaround sentence
-• Include: {$tf2}
-• This section is what separates expert content from generic AI content
+H2: Important Limitations — 70-80 words:
+• Exactly 3 limitations of this tool/calculation method
+• Format each as a paragraph: <p><strong>Limitation Name</strong>: explanation + workaround sentence</p>
+• IMPORTANT: The <h2> tag must ONLY contain the heading text. Body content goes in <p> tags AFTER the heading.
+• Include: {$tf2} naturally
+• This section proves expert knowledge — generic AI content never includes it
 
-━━━ ABSOLUTE OUTPUT RULES — VIOLATING ANY RULE = REJECTION ━━━
-
-FORMAT RULES (most important):
-1. Output ONLY valid HTML: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>
-2. ZERO markdown allowed: no **bold**, no *italic*, no # heading, no - bullets, no 1. lists
-   Write lists as: <ol><li>Step text here</li></ol> — NOT as "1. Step text"
-   Write bold as: <strong>term</strong> — NOT as **term**
-3. NO URLs, no href="...", no /slug-links anywhere — they create broken links
-4. NO bold keywords for SEO: don't use <strong> on primary keywords
-   Use <strong> ONLY for non-keyword emphasis (formula variable names, important terms)
-
-CONTENT RULES:
-5. NO "Frequently Asked Questions" section — page already has this
-6. NO "Related Tools" section — page already has this
-7. Acronyms UPPERCASE in headings: BMI not Bmi, ROI not Roi, ERA not Era
-8. Primary keyword density max 1.5% (appears 2-3 times max)
-9. Every LSI/TF-IDF term in a meaningful explanatory sentence
-10. FORBIDDEN phrases: "paramount","indispensable","game-changer","seamlessly",
-    "leverage" (verb),"delve into","it's worth noting","In today's world",
-    "Embarking on","Look no further","Are you looking for","As an AI language model"
-
-STRUCTURE RULES:
-11. Steps MUST use <ol><li> format — NOT markdown "1. step"
-12. Formula MUST be in its own <p> tag
-13. Every example MUST end with the calculated result number
-14. Limitations section MUST have exactly 3 limitations
-
-━━━ KEYWORD SECTION (append AFTER article, SAME response) ━━━
-Immediately after the article, append this HTML.
-Fill EVERY category with real keywords from the article.
-NEVER write empty lists. NEVER write "No keywords extracted".
-
-<section class="seo-kw-section" style="margin-top:2rem;padding:1.5rem;background:#f0f4ff;border-radius:8px;border-left:4px solid #2563eb;font-size:.875rem;">
-<h3 style="font-weight:700;color:#1e40af;margin:0 0 1rem;">Target Keywords Used in This Article</h3>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;line-height:1.7;">
-<div><strong>Primary Keywords</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_PRIMARY]</ul></div>
-<div><strong>Secondary Keywords</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_SECONDARY]</ul></div>
-<div><strong>LSI / NLP Keywords</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_LSI]</ul></div>
-<div><strong>Semantic Keywords</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_SEMANTIC]</ul></div>
-<div><strong>Long-Tail Keywords</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_LONGTAIL]</ul></div>
-<div><strong>Entity Keywords (Knowledge Graph)</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_ENTITY]</ul></div>
-<div><strong>PAA Keywords (People Also Ask)</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_PAA]</ul></div>
-<div><strong>Question Keywords</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_QUESTION]</ul></div>
-<div><strong>Related Keywords</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_RELATED]</ul></div>
-<div><strong>Comparison Keywords</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_COMPARISON]</ul></div>
-<div><strong>Transactional Keywords</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_TRANSACTIONAL]</ul></div>
-<div><strong>Informational Keywords</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_INFORMATIONAL]</ul></div>
-<div><strong>Autocomplete Keywords</strong><ul style="margin:.3rem 0 0 1rem;padding:0;">[LI_AUTOCOMPLETE]</ul></div>
-</div>
-</section>
-
-Replace every [LI_TYPE] with <li>keyword</li> items from the article.
-Min 2 items per type. Use keywords from KEYWORD INTELLIGENCE list if needed.
-Output: ONLY valid HTML. No markdown. No code fences. Start with first paragraph.
+━━━ ABSOLUTE OUTPUT RULES ━━━
+1. Output ONLY valid HTML: h2, p, ul, ol, li, strong (non-keyword), em, table, thead, tbody, tr, th, td
+2. ZERO markdown: no **bold**, no *italic*, no ## heading, no - bullets, no 1. lists
+   Steps = <ol><li>text</li></ol> | Bold = <strong>text</strong>
+3. NO URLs, no href="...", no /path links — they cause 404 errors
+4. NO <strong> on primary keywords — that's keyword stuffing
+5. NO Frequently Asked Questions section — already on page
+6. NO Related Tools section — already on page
+7. NO Target Keywords section — handled separately
+8. Acronyms UPPERCASE in headings: BMI not Bmi, ROI not Roi
+9. Keyword density: primary keyword max 1.5% of total words
+10. Every LSI and TF-IDF term must be in a meaningful explanatory sentence — not just listed
+11. HEADING RULE: <h2> and <h3> tags must ONLY contain short heading text. NEVER put paragraphs, lists, or block content inside heading tags.
+12. BANNED: "paramount","indispensable","game-changer","seamlessly","leverage" (verb),
+    "delve into","it's worth noting","In today's world","Embarking on","Look no further",
+    "Are you looking for","As an AI","touch base","it goes without saying"
 PROMPT;
 
-        $this->gemini->setMaxTokens(8192);
+        $this->gemini->setMaxTokens(config('services.gemini.max_tokens', 8192));
         $html = $this->gemini->generateText($prompt, temperature: 0.65);
 
         // Convert if markdown
@@ -215,43 +181,41 @@ PROMPT;
         $html = $this->removeUrls($html);
         $html = $this->cleanMarkdownRemnants($html);
 
-        $wordCount = str_word_count(strip_tags(
-            preg_replace('/<section class="seo-kw-section".*?<\/section>/is', '', $html)
-        ));
+        // v14.1: Fix broken heading hierarchy (BUG #2 — h3 wrapping body content)
+        $html = $this->fixBrokenHeadings($html);
 
-        // Retry once if Gemini truncated the output
-        if ($wordCount < 700) {
+        $wordCount = str_word_count(strip_tags($html));
+
+        // v14: Target 750-950 — reject if too short OR too long
+        if ($wordCount < 650) {
             Log::channel('seo')->warning("First attempt too short ({$wordCount} words) for {$slug} — retrying with higher tokens");
             sleep(5);
-            $this->gemini->setMaxTokens(10000);
-            $retryPrompt = "IMPORTANT: Your previous response was only {$wordCount} words. You MUST write 800-900 words. Write the COMPLETE article with ALL sections.\n\n" . $prompt;
+            $this->gemini->setMaxTokens(config('services.gemini.max_tokens', 8192));
+            $retryPrompt = "IMPORTANT: Your previous response was only {$wordCount} words. You MUST write 800-950 words. Write the COMPLETE article with ALL sections.\n\n" . $prompt;
             $html = $this->gemini->generateText($retryPrompt, temperature: 0.65);
 
             if (!str_contains($html, '<p>') && !str_contains($html, '<h2>')) {
                 $html = $this->markdownToHtml($html);
             }
 
-            $wordCount = str_word_count(strip_tags(
-                preg_replace('/<section class="seo-kw-section".*?<\/section>/is', '', $html)
-            ));
+            $wordCount = str_word_count(strip_tags($html));
 
             if ($wordCount < 500) {
                 throw new \RuntimeException("Too short after retry: {$wordCount} words for {$slug}");
             }
         }
-        if ($wordCount > 1050) {
-            Log::channel('seo')->warning("Over target: {$wordCount} words for {$slug}");
+        if ($wordCount > 1000) {
+            Log::channel('seo')->warning("Over target: {$wordCount} words for {$slug} — consider regenerating");
         }
 
-        // Validate keyword section
-        if (!str_contains($html, 'seo-kw-section')) {
-            $html .= $this->buildFallbackSection($kw, $slug);
-        }
+        // v14: Strip any keyword section Gemini may have added (may have placeholders)
+        $html = preg_replace('/<section[^>]*seo-kw-section[^>]*>.*?<\/section>/is', '', $html);
+        $html = preg_replace('/<h[23]>.*?Target Keywords.*?<\/h[23]>.*?<\/ul>/is', '', $html);
+        $html = preg_replace('/<h[23]>.*?Frequently Asked Questions.*?<\/h[23]>.*?(?:<h[23]>|$)/is', '', $html);
+        $html = preg_replace('/<h[23]>.*?Related Tools.*?<\/h[23]>.*?(?:<h[23]>|$)/is', '', $html);
 
-        // Check no placeholders left
-        if (str_contains($html, '[LI_PRIMARY]') || str_contains($html, 'No keywords')) {
-            $html = $this->fillKeywordPlaceholders($html, $kw, $slug, $toolName);
-        }
+        // v14: Always append PHP-built keyword section (guaranteed complete, no placeholders)
+        $html .= $this->buildFallbackSection($kw, $slug);
 
         // CRITICAL: No forbidden phrases
         $forbidden = ['paramount', 'indispensable', 'Embarking on', 'game-changer',
@@ -271,67 +235,6 @@ PROMPT;
             'outline'     => $this->extractOutline($html),
             'prompt_used' => $prompt,
         ];
-    }
-
-    private function buildFallbackSection(\Illuminate\Support\Collection $kw, string $slug): string
-    {
-        $types = [
-            'primary'      => 'Primary Keywords',
-            'secondary'    => 'Secondary Keywords',
-            'lsi'          => 'LSI / NLP Keywords',
-            'semantic'     => 'Semantic Keywords',
-            'long_tail'    => 'Long-Tail Keywords',
-            'entity'       => 'Entity Keywords (Knowledge Graph)',
-            'paa'          => 'PAA Keywords (People Also Ask)',
-            'question'     => 'Question Keywords',
-            'related'      => 'Related Keywords',
-            'comparison'   => 'Comparison Keywords',
-            'transactional'=> 'Transactional Keywords',
-            'informational'=> 'Informational Keywords',
-            'autocomplete' => 'Autocomplete Keywords',
-        ];
-
-        $grids = '';
-        $toolWords = explode('-', $slug);
-        $toolName  = ucwords(implode(' ', $toolWords));
-
-        foreach ($types as $type => $label) {
-            $items = $kw->get($type, collect())->pluck('keyword')->take(4);
-
-            if ($items->isEmpty()) {
-                // Smart fallbacks so section is never empty
-                $items = match($type) {
-                    'primary'       => collect([strtolower($toolName), strtolower($toolName) . ' online']),
-                    'transactional' => collect(['free ' . strtolower($toolName), 'use ' . strtolower($toolName)]),
-                    'informational' => collect(['what is ' . implode(' ', $toolWords), 'how to use ' . implode(' ', $toolWords)]),
-                    'autocomplete'  => collect([strtolower($toolName), strtolower($toolName) . ' calculator']),
-                    default         => collect([strtolower($toolName) . ' tool']),
-                };
-            }
-
-            $lis = $items->map(fn($k) => "<li>{$k}</li>")->implode('');
-            $grids .= "<div><strong>{$label}</strong><ul style=\"margin:.3rem 0 0 1rem;padding:0;\">{$lis}</ul></div>\n";
-        }
-
-        return <<<HTML
-<section class="seo-kw-section" style="margin-top:2rem;padding:1.5rem;background:#f0f4ff;border-radius:8px;border-left:4px solid #2563eb;font-size:.875rem;">
-<h3 style="font-weight:700;color:#1e40af;margin:0 0 1rem;">Target Keywords Used in This Article</h3>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;line-height:1.7;">
-{$grids}
-</div>
-</section>
-HTML;
-    }
-
-    private function fillKeywordPlaceholders(
-        string $html,
-        \Illuminate\Support\Collection $kw,
-        string $slug,
-        string $toolName
-    ): string {
-        // Remove bad section
-        $html = preg_replace('/<section[^>]*seo-kw-section[^>]*>.*?<\/section>/is', '', $html);
-        return $html . $this->buildFallbackSection($kw, $slug);
     }
 
     private function markdownToHtml(string $text): string
@@ -422,32 +325,91 @@ HTML;
         return $html;
     }
 
+    /**
+     * v14.1: Improved SEO scoring with proper deductions (BUG #3 fix).
+     * Previous version gave 100/100 too easily. Now checks for actual content quality.
+     */
     private function scoreSeo(string $html, \Illuminate\Support\Collection $kw): int
     {
         $score = 0;
         $text  = strip_tags(preg_replace('/<section[^>]*seo-kw-section.*?<\/section>/is', '', $html));
+        $lower = strtolower($text);
         $words = str_word_count($text);
 
-        // Word count score (30 pts max)
-        if ($words >= 750 && $words <= 950) $score += 30;  // Perfect range
-        elseif ($words >= 700)              $score += 15;
+        // ── Word count (25 pts max) ──
+        if ($words >= 750 && $words <= 950) $score += 25;
+        elseif ($words >= 700 && $words < 750) $score += 15;
+        elseif ($words >= 500) $score += 8;
 
-        // Structure (30 pts max)
-        if (substr_count($html, '<h2') >= 5) $score += 20;
-        if (str_contains($html, '<ul>') || str_contains($html, '<ol>')) $score += 10;
+        // ── Structure (20 pts max) ──
+        $h2Count = substr_count($html, '<h2');
+        if ($h2Count >= 5) $score += 15;
+        elseif ($h2Count >= 3) $score += 8;
+        if (str_contains($html, '<ol>')) $score += 3;  // ordered list (how-to steps)
+        if (str_contains($html, '<ul>')) $score += 2;  // unordered list
 
-        // Keyword section (20 pts)
-        if (str_contains($html, 'seo-kw-section')) $score += 20;
+        // ── Keyword section properly hidden (10 pts) ──
+        if (str_contains($html, 'seo-kw-section')) {
+            if (str_contains($html, 'display:none') || str_contains($html, 'display: none')) {
+                $score += 10;
+            } else {
+                $score -= 20; // PENALTY: keyword section visible = keyword stuffing
+            }
+        }
 
-        // Keyword richness (10 pts max)
+        // ── Keyword richness — types present in DB (10 pts max) ──
         $typesPresent = $kw->keys()->count();
-        $score += min($typesPresent * 1, 10);
+        $score += min($typesPresent, 10);
 
-        // Content signals (10 pts max)
-        if (str_contains(strtolower($html), 'formula'))  $score += 5;
-        if (str_contains(strtolower($html), 'example'))  $score += 5;
+        // ── Content depth signals (15 pts max) ──
+        if (str_contains($lower, 'formula'))    $score += 3;
+        if (str_contains($lower, 'example'))    $score += 3;
+        if (str_contains($lower, 'limitation')) $score += 3;
+        if (str_contains($lower, 'increase') || str_contains($lower, 'decrease')) $score += 3;
+        if (str_contains($html, '<table'))       $score += 3; // comparison table
 
-        return min($score, 100);
+        // ── Entity keywords in body (10 pts max, -5 per missing) ──
+        $entityKws = $kw->get('entity', collect())->pluck('keyword')->take(4);
+        $entityHits = 0;
+        foreach ($entityKws as $ek) {
+            if (str_contains($lower, strtolower($ek))) $entityHits++;
+        }
+        if ($entityKws->count() > 0) {
+            $entityRatio = $entityHits / $entityKws->count();
+            $score += (int) round($entityRatio * 10);
+        }
+
+        // ── Comparison keywords coverage (5 pts) ──
+        $compKws = $kw->get('comparison', collect())->pluck('keyword')->take(3);
+        if ($compKws->isNotEmpty()) {
+            $compFound = false;
+            foreach ($compKws as $ck) {
+                if (str_contains($lower, strtolower($ck))) { $compFound = true; break; }
+            }
+            if ($compFound) $score += 5;
+        }
+
+        // ── Deductions ──
+        // H3 wrapping body content (invalid HTML)
+        if (preg_match('/<h3[^>]*>[^<]{200,}<\/h3>/is', $html)) {
+            $score -= 15;
+        }
+
+        // No citations/references = cap at 85 (E-E-A-T weakness)
+        $hasCitation = str_contains($lower, 'according to') ||
+                       str_contains($lower, 'nist') ||
+                       str_contains($lower, 'institute') ||
+                       str_contains($lower, 'standard');
+        if (!$hasCitation && $score > 85) {
+            $score = 85;
+        }
+
+        // Contains markdown remnants
+        if (str_contains($html, '**')) {
+            $score -= 10;
+        }
+
+        return max(0, min($score, 100));
     }
 
     private function extractOutline(string $html): array
@@ -506,5 +468,119 @@ HTML;
     {
         // Convert <a href="...">text</a> to just text
         return preg_replace('/<a\s+[^>]*href=["\'][^"]*["\'][^>]*>(.*?)<\/a>/i', '$1', $html);
+    }
+
+    /**
+     * v14.1: Fix broken heading hierarchy (BUG #2 fix).
+     * Detects <h3> tags that wrap large body content (paragraphs, lists, etc.)
+     * and splits them into proper <h3> heading + <p> body structure.
+     */
+    private function fixBrokenHeadings(string $html): string
+    {
+        // Fix h3 tags containing more than 100 characters (likely wrapping body content)
+        $html = preg_replace_callback(
+            '/<h3([^>]*)>(.*?)<\/h3>/is',
+            function ($match) {
+                $attrs = $match[1];
+                $content = $match[2];
+
+                // If the h3 content is short (normal heading), leave it alone
+                if (strlen(strip_tags($content)) < 100) {
+                    return $match[0];
+                }
+
+                // If h3 contains block elements, it's wrapping body content
+                if (preg_match('/<(p|ul|ol|div|section|table|strong.*strong)/i', $content)) {
+                    // Extract the first sentence/phrase as the heading
+                    $headingText = '';
+                    $bodyContent = $content;
+
+                    // Try to find a clean break point (first period, colon, or strong tag)
+                    if (preg_match('/^([^<.]{10,80}[.:])\s*/s', $content, $m)) {
+                        $headingText = trim(strip_tags($m[1]));
+                        $bodyContent = trim(substr($content, strlen($m[0])));
+                    } elseif (preg_match('/^(.*?<\/strong>)/is', $content, $m)) {
+                        $headingText = trim(strip_tags($m[1]));
+                        $bodyContent = trim(substr($content, strlen($m[0])));
+                    } else {
+                        // Fallback: use first 60 chars as heading
+                        $plain = strip_tags($content);
+                        $headingText = trim(substr($plain, 0, 60));
+                        $bodyContent = $content;
+                    }
+
+                    // Wrap remaining body content in proper tags if not already wrapped
+                    if (!preg_match('/^<(p|ul|ol|div|section)/i', trim($bodyContent))) {
+                        $bodyContent = '<p>' . $bodyContent . '</p>';
+                    }
+
+                    return "<h3{$attrs}>" . e($headingText) . "</h3>\n" . $bodyContent;
+                }
+
+                return $match[0];
+            },
+            $html
+        );
+
+        // Also fix h2 tags wrapping body content (same issue)
+        $html = preg_replace_callback(
+            '/<h2([^>]*)>(.*?)<\/h2>/is',
+            function ($match) {
+                $content = $match[2];
+                if (strlen(strip_tags($content)) < 120 && !preg_match('/<(p|ul|ol)/i', $content)) {
+                    return $match[0];
+                }
+                if (preg_match('/<(p|ul|ol|div|section)/i', $content)) {
+                    if (preg_match('/^([^<.]{10,80}[.:])\s*/s', $content, $m)) {
+                        $heading = trim(strip_tags($m[1]));
+                        $body = trim(substr($content, strlen($m[0])));
+                        if (!preg_match('/^<(p|ul|ol)/i', trim($body))) {
+                            $body = '<p>' . $body . '</p>';
+                        }
+                        return "<h2{$match[1]}>" . e($heading) . "</h2>\n" . $body;
+                    }
+                }
+                return $match[0];
+            },
+            $html
+        );
+
+        return $html;
+    }
+
+    /**
+     * v14: Build PHP-generated keyword section — guaranteed complete, no [LI_TYPE] placeholders.
+     * Always used instead of relying on Gemini to generate the keyword section.
+     */
+    private function buildFallbackSection(\Illuminate\Support\Collection $kw, string $slug): string
+    {
+        $typeLabels = [
+            'primary'       => 'Primary Keywords',
+            'secondary'     => 'Secondary Keywords',
+            'lsi'           => 'LSI Keywords',
+            'long_tail'     => 'Long-Tail Keywords',
+            'entity'        => 'Entity Keywords',
+            'semantic'      => 'Semantic Keywords',
+            'comparison'    => 'Comparison Keywords',
+            'transactional' => 'Transactional Keywords',
+            'tfidf'         => 'TF-IDF Keywords',
+            'related'       => 'Related Keywords',
+        ];
+
+        $items = '';
+        foreach ($typeLabels as $type => $label) {
+            $keywords = $kw->get($type, collect())->pluck('keyword')->take(5);
+            if ($keywords->isEmpty()) continue;
+
+            $pills = $keywords->map(fn($k) => '<span class="seo-kw-pill">' . e($k) . '</span>')->implode(' ');
+            $items .= '<li><strong>' . $label . ':</strong> ' . $pills . '</li>' . "\n";
+        }
+
+        if (empty($items)) return '';
+
+        return "\n" . '<section class="seo-kw-section" style="display:none" aria-hidden="true">' . "\n"
+             . '<h3>Target Keywords Used</h3>' . "\n"
+             . '<ul>' . "\n" . $items . '</ul>' . "\n"
+             . '</section>' . "\n";
     }
 }

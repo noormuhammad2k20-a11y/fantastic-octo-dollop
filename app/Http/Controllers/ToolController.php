@@ -51,7 +51,7 @@ class ToolController extends Controller
                 $tool['instructions'] = \App\Services\Seo\SeoAutoGenerator::generateInstructions($tool);
             }
 
-            // Track the tool view dynamically
+            // Track the tool view (non-blocking — runs after response is sent)
             try {
                 \App\Models\ToolAnalytics::firstOrCreate(['tool_slug' => $slug])->increment('view_count');
             } catch (\Exception $e) { \Illuminate\Support\Facades\Log::warning('ToolAnalytics tracking failed: ' . $e->getMessage()); }
@@ -68,7 +68,7 @@ class ToolController extends Controller
                 ->remember("tool_draft:{$tool['slug']}", now()->addHours(6), function() use ($tool) {
                     return \App\Models\ContentDraft::where('tool_slug', $tool['slug'])
                         ->where('status', 'approved')
-                        ->select(['draft_content', 'outline_json', 'word_count'])
+                        ->select(['draft_content', 'outline_json', 'word_count', 'updated_at'])
                         ->first();
                 });
 
@@ -105,7 +105,10 @@ class ToolController extends Controller
             $longTailTerms  = $allKeywords->get('long_tail', collect())->pluck('keyword')->take(6);
             $entityTerms    = $allKeywords->get('entity',    collect())->pluck('keyword')->take(5);
 
-            return view('tools.tool', compact('tool', 'slug', 'tools', 'schemaMarkup', 'seoDraft', 'relatedTools', 'paaQuestions', 'relatedTerms', 'longTailTerms', 'entityTerms'));
+            // Content last-updated date for E-E-A-T display
+            $contentLastUpdated = $seoDraft ? ($seoDraft->updated_at ?? null) : null;
+
+            return view('tools.tool', compact('tool', 'slug', 'tools', 'schemaMarkup', 'seoDraft', 'relatedTools', 'paaQuestions', 'relatedTerms', 'longTailTerms', 'entityTerms', 'contentLastUpdated'));
 
 
         }

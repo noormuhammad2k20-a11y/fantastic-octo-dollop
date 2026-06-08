@@ -152,6 +152,94 @@ class ToolContextExtractor
             'user_types'    => ['basketball analysts', 'fantasy basketball players', 'coaches', 'scouts'],
             'formula'       => 'Usage Rate = 100 × ((FGA + 0.44×FTA + TOV) × Team Minutes) / (Minutes × (Team FGA + 0.44×Team FTA + Team TOV))',
         ],
+        // ─── Finance ───────────────────────────────────────────
+        'cagr-calculator' => [
+            'category'      => 'Finance & Investment',
+            'primary_use'   => 'calculate Compound Annual Growth Rate for investments',
+            'related_terms' => ['annualized return', 'investment growth', 'portfolio performance', 'IRR'],
+            'user_types'    => ['investors', 'financial analysts', 'portfolio managers', 'students'],
+            'formula'       => 'CAGR = (Ending Value / Beginning Value)^(1/Years) - 1',
+        ],
+        'profit-margin-calculator' => [
+            'category'      => 'Finance & Business',
+            'primary_use'   => 'calculate gross, operating, and net profit margins as percentages',
+            'related_terms' => ['gross profit', 'net profit', 'operating expenses', 'revenue', 'markup'],
+            'user_types'    => ['business owners', 'accountants', 'investors', 'MBA students'],
+            'formula'       => 'Profit Margin = (Net Profit / Revenue) × 100',
+        ],
+        'salary-calculator' => [
+            'category'      => 'Finance & Personal',
+            'primary_use'   => 'convert salary between hourly, daily, weekly, monthly, and annual rates',
+            'related_terms' => ['hourly rate', 'annual salary', 'take-home pay', 'gross income', 'net income'],
+            'user_types'    => ['job seekers', 'HR professionals', 'freelancers', 'employers'],
+            'formula'       => 'Annual = Hourly × Hours/week × 52 | Monthly = Annual / 12',
+        ],
+        'vat-calculator' => [
+            'category'      => 'Finance & Tax',
+            'primary_use'   => 'calculate VAT amount and total price including or excluding tax',
+            'related_terms' => ['value added tax', 'tax rate', 'inclusive price', 'exclusive price', 'GST'],
+            'user_types'    => ['business owners', 'accountants', 'shoppers', 'freelancers'],
+            'formula'       => 'VAT = Price × Tax Rate | Inclusive Price = Price + VAT',
+        ],
+        // ─── Health ────────────────────────────────────────────
+        'bmr-calculator' => [
+            'category'      => 'Health & Fitness',
+            'primary_use'   => 'calculate Basal Metabolic Rate — calories burned at rest',
+            'related_terms' => ['TDEE', 'caloric needs', 'resting metabolic rate', 'Mifflin-St Jeor', 'Harris-Benedict'],
+            'user_types'    => ['dieters', 'fitness enthusiasts', 'nutritionists', 'personal trainers'],
+            'formula'       => 'BMR (Mifflin-St Jeor): Men = 10W + 6.25H - 5A + 5 | Women = 10W + 6.25H - 5A - 161',
+        ],
+        'tdee-calculator' => [
+            'category'      => 'Health & Fitness',
+            'primary_use'   => 'calculate Total Daily Energy Expenditure based on activity level',
+            'related_terms' => ['maintenance calories', 'activity multiplier', 'BMR', 'caloric surplus', 'deficit'],
+            'user_types'    => ['athletes', 'dieters', 'bodybuilders', 'personal trainers'],
+            'formula'       => 'TDEE = BMR × Activity Multiplier (1.2 sedentary to 1.9 extra active)',
+        ],
+        'ideal-weight-calculator' => [
+            'category'      => 'Health & Fitness',
+            'primary_use'   => 'calculate ideal body weight based on height and gender',
+            'related_terms' => ['healthy weight', 'BMI', 'body frame', 'Devine formula', 'Robinson formula'],
+            'user_types'    => ['individuals monitoring health', 'doctors', 'fitness trainers'],
+            'formula'       => 'Devine Formula: Men = 50 + 2.3(height in inches - 60) | Women = 45.5 + 2.3(height - 60)',
+        ],
+        // ─── Math ──────────────────────────────────────────────
+        'fraction-calculator' => [
+            'category'      => 'Math & Numbers',
+            'primary_use'   => 'add, subtract, multiply, and divide fractions with step-by-step solutions',
+            'related_terms' => ['numerator', 'denominator', 'common denominator', 'simplify', 'mixed numbers'],
+            'user_types'    => ['students', 'teachers', 'parents helping with homework'],
+            'formula'       => 'a/b + c/d = (ad + bc) / bd | Simplify using GCD',
+        ],
+        'scientific-notation-calculator' => [
+            'category'      => 'Math & Science',
+            'primary_use'   => 'convert numbers to and from scientific notation',
+            'related_terms' => ['exponent', 'coefficient', 'powers of ten', 'significant figures', 'standard form'],
+            'user_types'    => ['science students', 'engineers', 'physicists', 'teachers'],
+            'formula'       => 'Scientific notation: a × 10^n where 1 ≤ a < 10',
+        ],
+        // ─── Developer ─────────────────────────────────────────
+        'url-encoder-decoder' => [
+            'category'      => 'Developer Tools',
+            'primary_use'   => 'encode or decode URL strings for use in web applications',
+            'related_terms' => ['percent encoding', 'URI encoding', 'query string', 'special characters', 'RFC 3986'],
+            'user_types'    => ['web developers', 'API developers', 'backend engineers'],
+            'formula'       => null,
+        ],
+        'md5-hash-generator' => [
+            'category'      => 'Developer Tools',
+            'primary_use'   => 'generate MD5 hash from any text input',
+            'related_terms' => ['hash function', 'checksum', 'data integrity', 'cryptography', 'SHA-256'],
+            'user_types'    => ['developers', 'security engineers', 'system administrators'],
+            'formula'       => null,
+        ],
+        'password-generator' => [
+            'category'      => 'Developer Tools & Security',
+            'primary_use'   => 'generate secure random passwords with customizable character sets',
+            'related_terms' => ['password strength', 'entropy', 'character set', 'random', 'cybersecurity'],
+            'user_types'    => ['individuals', 'IT administrators', 'developers', 'security teams'],
+            'formula'       => null,
+        ],
         // Add more top tools here for best content quality
     ];
 

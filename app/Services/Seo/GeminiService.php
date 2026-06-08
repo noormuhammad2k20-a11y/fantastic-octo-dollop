@@ -55,7 +55,7 @@ class GeminiService
              . "/{$this->model}:generateContent"
              . "?key={$this->apiKey}";
 
-        $maxRetries = 3;
+        $maxRetries = 5;
 
         for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
             try {
@@ -85,12 +85,13 @@ class GeminiService
                         ],
                     ]);
 
-                if ($response->status() === 429) {
-                    // Rate limited — wait and retry
-                    $waitSeconds = 30; // Wait 30s to clear the RPM limit
+                if ($response->status() === 429 || $response->status() === 503) {
+                    // Rate limited or high demand — wait and retry
+                    $waitSeconds = 30 + (10 * $attempt); // Exponential-ish backoff
+                    $reason = $response->status() === 429 ? 'rate limited' : 'experiencing high demand (503)';
                     Log::channel('seo')->warning(
-                        "Gemini rate limited (attempt {$attempt}/{$maxRetries}). "
-                        . "Waiting {$waitSeconds}s..."
+                        "Gemini {$reason} (attempt {$attempt}/{$maxRetries}). "
+                        . "Body: " . $response->body() . " Waiting {$waitSeconds}s..."
                     );
                     sleep($waitSeconds);
                     continue;

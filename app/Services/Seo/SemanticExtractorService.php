@@ -33,8 +33,8 @@ class SemanticExtractorService
 
     public function extractForTool(string $slug): Collection
     {
-        // v10 cache key — busts all previous cached data
-        $cacheKey = "semantics_v10:{$slug}";
+        // v14: Fresh cache key — previous v10 data had informational type bugs
+        $cacheKey = "semantics_v14:{$slug}";
 
         return Cache::store('file')->remember($cacheKey, now()->addDays(7), function () use ($slug) {
             $toolName = ucwords(str_replace('-', ' ', $slug));

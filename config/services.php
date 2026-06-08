@@ -43,11 +43,20 @@ return [
     //     'rpm_limit'  => (int) env('OPENAI_RPM_LIMIT', 20),
     // ],
 
-    // Gemini API configuration for SEO content generation
+    // DEPRECATED: OpenRouter API configuration (OpenAI-compatible, used for SEO content generation)
+    // 'openrouter' => [
+    //     'api_key'    => env('OPENROUTER_API_KEY'),
+    //     'model'      => env('OPENROUTER_MODEL', 'anthropic/claude-sonnet-4.6'),
+    //     'max_tokens' => (int) env('OPENROUTER_MAX_TOKENS', 6000),
+    //     'rpm_limit'  => (int) env('OPENROUTER_RPM_LIMIT', 15),
+    //     'endpoint'   => 'https://openrouter.ai/api/v1/chat/completions',
+    // ],
+
+    // Gemini API configuration
     'gemini' => [
         'api_key'    => env('GEMINI_API_KEY'),
-        'model'      => env('GEMINI_MODEL', 'gemini-2.5-flash'),
-        'max_tokens' => (int) env('GEMINI_MAX_TOKENS', 4000),
+        'model'      => env('GEMINI_MODEL', 'gemini-3.1-pro'),
+        'max_tokens' => (int) env('GEMINI_MAX_TOKENS', 8192),
         'rpm_limit'  => (int) env('GEMINI_RPM_LIMIT', 15),
         'endpoint'   => 'https://generativelanguage.googleapis.com/v1beta/models',
     ],
