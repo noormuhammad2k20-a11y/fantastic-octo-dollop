@@ -8,6 +8,9 @@
         <?php echo $schemaMarkup; ?>
 
     </script>
+    <?php if(!$seoDraft || ($seoDraft->word_count ?? 0) < 500): ?>
+        <meta name="robots" content="noindex,follow">
+    <?php endif; ?>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>

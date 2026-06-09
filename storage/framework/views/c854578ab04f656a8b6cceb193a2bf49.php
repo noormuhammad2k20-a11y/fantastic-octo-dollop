@@ -1,5 +1,5 @@
 <div class="row g-4 prime-checker-rebuilt">
-    {{-- ═══════ HEADER & INPUT CARD ═══════ --}}
+    
     <div class="col-lg-12">
         <div class="calculator-card border-0" style="border-radius: 24px; background: #fff; box-shadow: 0 10px 40px rgba(139, 92, 246, 0.08);">
             <div class="calculator-header px-4 pt-4 d-flex align-items-center">
@@ -36,7 +36,7 @@
         </div>
     </div>
 
-    {{-- ═══════ OUTPUT CARD ═══════ --}}
+    
     <div class="col-lg-12">
         <div class="output-card-themed" style="--tool-hue: 263; --tool-color: #8b5cf6; --tool-bg: rgba(139, 92, 246, .04);">
             <div class="p-4 pb-0">
@@ -142,7 +142,7 @@
                 </div>
             </div>
 
-            {{-- Quick Actions --}}
+            
             <div class="p-4 bg-white border-top rounded-bottom-5">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                     <div class="d-flex flex-wrap gap-2 justify-content-center">
@@ -318,3 +318,4 @@ document.addEventListener('DOMContentLoaded', function(){
 }
 </style>
 
+<?php /**PATH D:\Xamp\htdocs\ToolsHub\resources\views/tools/interactive/is-it-a-prime-number.blade.php ENDPATH**/ ?>

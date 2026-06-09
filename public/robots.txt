@@ -1,19 +1,12 @@
 User-agent: *
+Disallow: /admin
+Disallow: /tinker
+Disallow: /storage
+Disallow: /api/internal
+Disallow: /*backup*
+
 Allow: /
-Disallow: /admin/
-Disallow: /api/
-Disallow: /storage/
-Disallow: /tmp/
-Disallow: /uploads/
-Disallow: /vendor/
+Allow: /sitemap.xml
 
-# Block debug and development files from crawling
-Disallow: /*debug*
-Disallow: /*check_*
-Disallow: /whoami.php
-
-# Crawl-delay (reasonable for shared hosting)
+Sitemap: https://toolshub.com/sitemap.xml
 Crawl-delay: 1
-
-# Sitemap
-Sitemap: https://onlinefreeconverter.net/sitemap.xml

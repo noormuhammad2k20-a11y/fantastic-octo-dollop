@@ -1,6 +1,6 @@
 <div class="interactive-card">
     <div class="interactive-header">
-        <h4><i class="{{ $tool['icon'] ?? 'fas fa-square-root-alt' }}"></i> {{ $tool['h1'] ?? 'Quadratic Formula Calculator' }}</h4>
+        <h4><i class="<?php echo e($tool['icon'] ?? 'fas fa-square-root-alt'); ?>"></i> <?php echo e($tool['h1'] ?? 'Quadratic Formula Calculator'); ?></h4>
         <div class="header-actions">
             <button class="btn btn-sm btn-outline-secondary" id="btn-reset-qfc"><i class="fas fa-redo me-1"></i> Reset</button>
         </div>
@@ -252,3 +252,4 @@ document.addEventListener('DOMContentLoaded', function() {
     calcQfc();
 });
 </script>
+<?php /**PATH D:\Xamp\htdocs\ToolsHub\resources\views/tools/interactive/quadratic-formula-calculator.blade.php ENDPATH**/ ?>

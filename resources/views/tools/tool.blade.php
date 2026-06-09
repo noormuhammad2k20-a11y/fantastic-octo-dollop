@@ -7,6 +7,9 @@
     <script type="application/ld+json">
         {!! $schemaMarkup !!}
     </script>
+    @if(!$seoDraft || ($seoDraft->word_count ?? 0) < 500)
+        <meta name="robots" content="noindex,follow">
+    @endif
 @endsection
 
 @section('content')
